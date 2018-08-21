@@ -1,4 +1,4 @@
 # popular-movies
+**#reminders for final readme**
 
-#For generating POJO model objects
-#http://www.jsonschema2pojo.org/
+* requires api key

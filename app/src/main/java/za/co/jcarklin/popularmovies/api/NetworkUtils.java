@@ -1,15 +1,16 @@
 package za.co.jcarklin.popularmovies.api;
 
-import java.io.IOException;
+import android.net.Uri;
+import android.util.Log;
 
-import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.moshi.MoshiConverterFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Scanner;
+
+import javax.net.ssl.HttpsURLConnection;
+
 import za.co.jcarklin.popularmovies.BuildConfig;
 
 public final class NetworkUtils {
@@ -17,47 +18,54 @@ public final class NetworkUtils {
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
     private static final String BASE_MOVIEDB_URL = "https://api.themoviedb.org/3/";
+    private static final String MOVIEDB_MOVIE = "movie";
     public static final String SORT_BY_POPULARITY = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
 
-    private MovieApiClient movieApiClient;
-    private static NetworkUtils networkUtils = null;
+    private static final NetworkUtils networkUtils = new NetworkUtils();
 
     private NetworkUtils() {
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
-        okHttpClientBuilder.addInterceptor(loggingInterceptor);
-        okHttpClientBuilder.addInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Interceptor.Chain chain) throws IOException {
-                Request request = chain.request();
-                HttpUrl url = request.url().newBuilder().addQueryParameter("api_key", BuildConfig.TMDB_API_TOKEN).build();
-                request = request.newBuilder().url(url).build();
-                return chain.proceed(request);
-            }
-        });
 
-        OkHttpClient okHttpClient = okHttpClientBuilder.build();
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl(BASE_MOVIEDB_URL)
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build();
-        movieApiClient = retrofit.create(MovieApiClient.class);
     }
 
+    public URL buildMovieUrl(String path) { //path = sort parameter or id
+        Uri uri = Uri.parse(BASE_MOVIEDB_URL).buildUpon()
+                .appendPath(MOVIEDB_MOVIE)
+                .appendPath(path)
+                .appendQueryParameter("api_key", BuildConfig.TMDB_API_TOKEN)
+                .build();
 
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        Log.v(TAG, "Built URI " + url);
+
+        return url;
+    }
+
+    public String getResponse(URL url) throws IOException {
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+        try {
+            InputStream inputStream = urlConnection.getInputStream();
+            Scanner scanner = new Scanner(inputStream);
+            scanner.useDelimiter("\\A");
+            if (scanner.hasNext()) {
+                String next = scanner.next();
+                Log.i(TAG,"Scanner next: " + next);
+                return next;
+            }
+            return null;
+        } finally {
+            urlConnection.disconnect();
+        }
+    }
 
     public static NetworkUtils getInstance() {
-        if (networkUtils == null) {
-            networkUtils = new NetworkUtils();
-        }
         return networkUtils;
-    }
-
-    public MovieApiClient getMovieApiClient() {
-        return movieApiClient;
     }
 
 }
