@@ -1,0 +1,69 @@
+package za.co.jcarklin.popularmovies.api;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import za.co.jcarklin.popularmovies.api.data.Movie;
+
+public class JsonUtils {
+
+    private static final JsonUtils instance = new JsonUtils();
+
+    private JsonUtils(){}
+/*
+"vote_count": 7094,
+      "id": 299536,
+      "video": false,
+      "vote_average": 8.3,
+      "title": "Avengers: Infinity War",
+      "popularity": 259.215,
+      "poster_path": "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
+      "original_language": "en",
+      "original_title": "Avengers: Infinity War",
+      "genre_ids": [
+        12,
+        878,
+        14,
+        28
+      ],
+      "backdrop_path": "/bOGkgRGdhrBYJSLpXaxhXVstddV.jpg",
+      "adult": false,
+      "overview": "As the Avengers and their allies have continued to protect the world from threats too large for any one hero to handle, a new danger has emerged from the cosmic shadows: Thanos. A despot of intergalactic infamy, his goal is to collect all six Infinity Stones, artifacts of unimaginable power, and use them to inflict his twisted will on all of reality. Everything the Avengers have fought for has led up to this moment - the fate of Earth and existence itself has never been more uncertain.",
+      "release_date": "2018-04-25"
+ */
+    public List<Movie> processMovieResults(String json) {
+        int movieId = 0;
+        String title = null;
+        String posterPath = null;
+        List<Movie> movies = null;
+        try {
+            JSONObject root = new JSONObject(json);
+            JSONArray results = root.optJSONArray("results");
+
+            if (results != null) {
+                JSONObject aResult;
+                Movie movie;
+                movies = new ArrayList<>(results.length());
+                for (int i = 0; i<results.length();i++) {
+                    aResult = results.getJSONObject(i);
+                    movie = new Movie();
+                    movie.setId(aResult.optInt("id",0));
+                    movie.setTitle(aResult.optString("title",""));
+                    movie.setPosterPath(aResult.optString("poster_path",""));
+                    movies.add(movie);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return movies;
+    }
+
+    public static JsonUtils getInstance() {
+        return instance;
+    }
+}
