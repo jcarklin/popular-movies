@@ -20,17 +20,22 @@ public class MainActivity extends AppCompatActivity {
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
     RecyclerView moviesRecyclerView;
+    List<Movie> moviesList;
+    GridLayoutManager gridLayoutManager;
     private FetchMoviesTaskAsyncTask fetchMoviesTaskAsyncTask = new FetchMoviesTaskAsyncTask();
+    private int spanCount = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL,false);
+        gridLayoutManager = new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL,false);
+        movieAdapter = new MovieAdapter(spanCount);
+        fetchMoviesTaskAsyncTask.execute();
+        moviesRecyclerView.setAdapter(movieAdapter);
         moviesRecyclerView.setLayoutManager(gridLayoutManager);
         moviesRecyclerView.setHasFixedSize(true);
-        fetchMoviesTaskAsyncTask.execute();
     }
 
     public class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
@@ -58,10 +63,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(List<Movie> movies) {
 
             if (movies != null) {
-                if (movieAdapter == null) {
-                    movieAdapter = new MovieAdapter(movies);
-                    moviesRecyclerView.setAdapter(movieAdapter);
-                } else {
+                if (movieAdapter != null) {
                     movieAdapter.setMovieResults(movies);
                 }
             }
