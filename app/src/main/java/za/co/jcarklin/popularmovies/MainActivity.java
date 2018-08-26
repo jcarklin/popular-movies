@@ -1,10 +1,15 @@
 package za.co.jcarklin.popularmovies;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.net.URL;
 import java.util.List;
@@ -20,10 +25,12 @@ public class MainActivity extends AppCompatActivity {
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
     RecyclerView moviesRecyclerView;
+    @BindView(R.id.tv_heading)
+    TextView heading;
     List<Movie> moviesList;
     GridLayoutManager gridLayoutManager;
-    private FetchMoviesTaskAsyncTask fetchMoviesTaskAsyncTask = new FetchMoviesTaskAsyncTask();
     private int spanCount = 3;
+    private int sortingIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,10 +39,41 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         gridLayoutManager = new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL,false);
         movieAdapter = new MovieAdapter(spanCount);
-        fetchMoviesTaskAsyncTask.execute();
         moviesRecyclerView.setAdapter(movieAdapter);
         moviesRecyclerView.setLayoutManager(gridLayoutManager);
         moviesRecyclerView.setHasFixedSize(true);
+        heading.setText(getResources().getString(R.string.top_20) + " " + getResources().getString(R.string.popularity));
+        new FetchMoviesTaskAsyncTask().execute();
+    }
+
+    //Menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        switch (item.getItemId()) {
+            case R.id.action_sort:
+                builder.setTitle(R.string.sort_by)
+                    .setSingleChoiceItems(getResources().getStringArray(R.array.sort_options), sortingIndex,new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialogInterface, int selectedIndex) {
+                            sortingIndex = selectedIndex;
+                            String sortBy = sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating);
+                            new FetchMoviesTaskAsyncTask().execute();
+                            heading.setText(getResources().getString(R.string.top_20) + " " + sortBy);
+                            dialogInterface.dismiss();
+                        }
+                    }).show();
+                return true;
+            case R.id.action_about:
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
@@ -48,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected List<Movie> doInBackground(String... params) {
-
-            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(NetworkUtils.SORT_BY_POPULARITY);
+            String sortBy = sortingIndex==0?NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED;
+            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy);
             try {
                 String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
                 return JsonUtils.getInstance().processMovieResults(jsonResponse);
@@ -61,10 +99,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Movie> movies) {
-
             if (movies != null) {
+                moviesList = movies;
                 if (movieAdapter != null) {
-                    movieAdapter.setMovieResults(movies);
+                    movieAdapter.setMovieResults(moviesList);
                 }
             }
 
