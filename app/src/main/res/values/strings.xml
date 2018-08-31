@@ -2,10 +2,13 @@
     <string name="app_name">Movie Browser</string>
     <string name="sort">Sort</string>
     <string name="about">About</string>
-    <string name="sort_by">Sorting:</string>
-    <string name="cancel">Cancel</string>
-    <string name="top_20">Top 20 movies by</string>
-    <string name="popularity">Popularity</string>
-    <string name="rating">Rating</string>
+    <string name="sort_by">Sorting: </string>
+    <string name="top_20">Top 20 movies by %1$s </string>
+    <string name="popularity">Popularity: </string>
+    <string name="rating">Rating: </string>
+    <string name="released_label">Released: </string>
+    <string name="the_movie_poster">The poster for the movie</string>
+    <string name="user_rating">User Rating: </string>
+
 
 </resources>

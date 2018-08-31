@@ -23,7 +23,7 @@ public final class NetworkUtils {
     public static final String SORT_BY_TOP_RATED = "top_rated";
 
     private static final NetworkUtils networkUtils = new NetworkUtils();
-
+//TODO ensure no crashes!
     private NetworkUtils() {
 
     }

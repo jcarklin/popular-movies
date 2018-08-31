@@ -1,39 +1,17 @@
 package za.co.jcarklin.popularmovies.api.data;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
+import java.util.Locale;
 
-public class Movie implements Serializable {
+public class Movie implements Parcelable {
 
-    private final static long serialVersionUID = 1461922970267274013L;
-
-    /*
-    {
-      "vote_count": 7094,
-      "id": 299536,
-      "video": false,
-      "vote_average": 8.3,
-      "title": "Avengers: Infinity War",
-      "popularity": 259.215,
-      "poster_path": "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
-      "original_language": "en",
-      "original_title": "Avengers: Infinity War",
-      "genre_ids": [
-        12,
-        878,
-        14,
-        28
-      ],
-      "backdrop_path": "/bOGkgRGdhrBYJSLpXaxhXVstddV.jpg",
-      "adult": false,
-      "overview": "As the Avengers and their allies have continued to protect the world from threats too large for any one hero to handle, a new danger has emerged from the cosmic shadows: Thanos. A despot of intergalactic infamy, his goal is to collect all six Infinity Stones, artifacts of unimaginable power, and use them to inflict his twisted will on all of reality. Everything the Avengers have fought for has led up to this moment - the fate of Earth and existence itself has never been more uncertain.",
-      "release_date": "2018-04-25"
-    },
-     */
     private Integer voteCount;
     private Integer id;
-    private Boolean video;
-    private Double voteAverage;
+    private Boolean video = false;
+    private Float voteAverage;
     private String title;
     private Double popularity;
     private String posterPath;
@@ -41,15 +19,35 @@ public class Movie implements Serializable {
     private String originalTitle;
     private List<Integer> genreIds = null;
     private String backdropPath;
-    private Boolean adult;
+    private Boolean adult = false;
     private String overview;
     private String releaseDate;
+
+    public Movie() {
+
+    }
+
+    private Movie(Parcel in) {
+        this.voteCount = in.readInt();
+        this.id = in.readInt();
+        this.video = (in.readInt()==1);
+        this.voteAverage = in.readFloat();
+        this.title = in.readString();
+        this.popularity = in.readDouble();
+        this.posterPath = in.readString();
+        this.originalLanguage = in.readString();
+        this.originalTitle = in.readString();
+        this.backdropPath = in.readString();
+        this.adult = (in.readInt()==1);
+        this.overview = in.readString();
+        this.releaseDate = in.readString();
+    }
 
     public Integer getVoteCount() {
         return voteCount;
     }
 
-    public void setVoteCount(Integer voteCount) {
+    public void setVoteCount(int voteCount) {
         this.voteCount = voteCount;
     }
 
@@ -61,7 +59,6 @@ public class Movie implements Serializable {
         this.id = id;
     }
 
-
     public Boolean getVideo() {
         return video;
     }
@@ -70,11 +67,11 @@ public class Movie implements Serializable {
         this.video = video;
     }
 
-    public Double getVoteAverage() {
+    public Float getVoteAverage() {
         return voteAverage;
     }
 
-    public void setVoteAverage(Double voteAverage) {
+    public void setVoteAverage(Float voteAverage) {
         this.voteAverage = voteAverage;
     }
 
@@ -108,6 +105,14 @@ public class Movie implements Serializable {
 
     public void setOriginalLanguage(String originalLanguage) {
         this.originalLanguage = originalLanguage;
+    }
+
+    public String getOriginalLanguageName() {
+        if (!originalLanguage.isEmpty()) {
+            Locale loc = new Locale(getOriginalLanguage());
+            return loc.getDisplayName();
+        }
+        return "";
     }
 
     public String getOriginalTitle() {
@@ -159,4 +164,36 @@ public class Movie implements Serializable {
     }
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(voteCount);
+        dest.writeInt(id);
+        dest.writeInt(video?1:0);
+        dest.writeFloat(voteAverage);
+        dest.writeString(title);
+        dest.writeDouble(popularity);
+        dest.writeString(posterPath);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(backdropPath);
+        dest.writeInt(adult?1:0);
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
+    }
+
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 }

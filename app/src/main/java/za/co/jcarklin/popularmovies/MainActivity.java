@@ -1,6 +1,8 @@
 package za.co.jcarklin.popularmovies;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -20,29 +22,29 @@ import za.co.jcarklin.popularmovies.api.JsonUtils;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
 import za.co.jcarklin.popularmovies.api.data.Movie;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
-    private MovieAdapter movieAdapter = null;
+    private static MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
     RecyclerView moviesRecyclerView;
     @BindView(R.id.tv_heading)
     TextView heading;
-    List<Movie> moviesList;
-    GridLayoutManager gridLayoutManager;
-    private int spanCount = 3;
-    private int sortingIndex = 0;
+    private GridLayoutManager gridLayoutManager;
+    private int spanCount = 2;
+    private static int sortingIndex = 0;
 
+    @SuppressLint("StringFormatInvalid")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         gridLayoutManager = new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL,false);
-        movieAdapter = new MovieAdapter(spanCount);
+        movieAdapter = new MovieAdapter(spanCount, this);
         moviesRecyclerView.setAdapter(movieAdapter);
         moviesRecyclerView.setLayoutManager(gridLayoutManager);
         moviesRecyclerView.setHasFixedSize(true);
-        heading.setText(getResources().getString(R.string.top_20) + " " + getResources().getString(R.string.popularity));
+        heading.setText(getResources().getString(R.string.top_20, getResources().getString(R.string.popularity)));
         new FetchMoviesTaskAsyncTask().execute();
     }
 
@@ -60,11 +62,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_sort:
                 builder.setTitle(R.string.sort_by)
                     .setSingleChoiceItems(getResources().getStringArray(R.array.sort_options), sortingIndex,new DialogInterface.OnClickListener() {
+                        @SuppressLint("StringFormatInvalid")
                         public void onClick(DialogInterface dialogInterface, int selectedIndex) {
                             sortingIndex = selectedIndex;
                             String sortBy = sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating);
                             new FetchMoviesTaskAsyncTask().execute();
-                            heading.setText(getResources().getString(R.string.top_20) + " " + sortBy);
+                            heading.setText(getResources().getString(R.string.top_20, sortBy));
                             dialogInterface.dismiss();
                         }
                     }).show();
@@ -76,7 +79,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
+    @Override
+    public void onClick(Movie selectedMovie) {
+        Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
+        movieDetailsIntent.putExtra(MovieDetailsActivity.INTENT_EXTRA_SELECTED_MOVIE, selectedMovie);
+        startActivity(movieDetailsIntent);
+    }
+
+    private static class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
 
         @Override
         protected void onPreExecute() {
@@ -100,9 +110,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(List<Movie> movies) {
             if (movies != null) {
-                moviesList = movies;
                 if (movieAdapter != null) {
-                    movieAdapter.setMovieResults(moviesList);
+                    movieAdapter.setMovieResults(movies);
                 }
             }
 

@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +37,6 @@ public class JsonUtils {
       "release_date": "2018-04-25"
  */
     public List<Movie> processMovieResults(String json) {
-        int movieId = 0;
-        String title = null;
-        String posterPath = null;
         List<Movie> movies = null;
         try {
             JSONObject root = new JSONObject(json);
@@ -54,6 +52,13 @@ public class JsonUtils {
                     movie.setId(aResult.optInt("id",0));
                     movie.setTitle(aResult.optString("title",""));
                     movie.setPosterPath(aResult.optString("poster_path",""));
+                    movie.setReleaseDate(aResult.optString("release_date",""));
+                    movie.setVoteAverage(BigDecimal.valueOf(aResult.optDouble("vote_average",0d)).floatValue());
+                    movie.setVoteCount(aResult.optInt("vote_count",0));
+                    movie.setPopularity(aResult.optDouble("popularity",0d));
+                    movie.setOriginalTitle(aResult.optString("original_title",""));
+                    movie.setOriginalLanguage(aResult.optString("original_language",""));
+                    movie.setOverview(aResult.optString("overview",""));
                     movies.add(movie);
                 }
             }

@@ -27,6 +27,9 @@
             android:scrollbars="vertical"
             tools:context=".MainActivity" />
     </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <!--TODO addProgressBar-->
     <!--TODO addErrorMessage-->
 </FrameLayout>

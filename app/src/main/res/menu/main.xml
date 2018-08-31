@@ -12,7 +12,7 @@
     <item
         android:id="@+id/action_about"
         android:orderInCategory="2"
-        app:showAsAction="never"
+        app:showAsAction="ifRoom"
         android:title="@string/about"/>
-
+        <!--TODO add moviedb attribution here in about-->
 </menu>
