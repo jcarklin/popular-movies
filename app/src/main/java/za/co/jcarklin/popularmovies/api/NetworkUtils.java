@@ -64,6 +64,7 @@ public final class NetworkUtils {
         }
     }
 
+
     public static NetworkUtils getInstance() {
         return networkUtils;
     }

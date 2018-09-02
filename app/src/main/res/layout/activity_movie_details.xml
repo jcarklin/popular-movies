@@ -15,7 +15,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="8dp">
 
             <TextView
                 android:id="@+id/tv_movie_title"
@@ -27,7 +28,15 @@
                 android:paddingTop="8dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                 android:textStyle="bold" />
-
+            <TextView
+                android:id="@+id/tv_original_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:layout_margin="8dp"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:textStyle="bold" />
             <RatingBar
                 android:id="@+id/ratingBar"
                 style="?attr/ratingBarStyleSmall"
@@ -38,7 +47,9 @@
                 android:numStars="10"
                 android:paddingBottom="8dp"
                 android:rating="8.3"
-                android:stepSize="0.5" />
+                android:stepSize="0.5"
+                android:progressTint="@color/ratingBar"
+                />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -120,13 +131,6 @@
 
                 </GridLayout>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_original_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="2dp"
-                android:layout_margin="8dp"/>
 
             <TextView
                 android:id="@+id/tv_overview"

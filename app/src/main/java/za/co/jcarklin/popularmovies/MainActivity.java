@@ -1,16 +1,23 @@
 package za.co.jcarklin.popularmovies;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.net.URL;
@@ -24,14 +31,18 @@ import za.co.jcarklin.popularmovies.api.data.Movie;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
-    private static MovieAdapter movieAdapter = null;
+    private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
     RecyclerView moviesRecyclerView;
     @BindView(R.id.tv_heading)
     TextView heading;
+    @BindView(R.id.pb_load_movies)
+    ProgressBar pbLoadMovies;
+    @BindView(R.id.error_message)
+    TextView errorMessage;
     private GridLayoutManager gridLayoutManager;
     private int spanCount = 2;
-    private static int sortingIndex = 0;
+    private int sortingIndex = 0;
 
     @SuppressLint("StringFormatInvalid")
     @Override
@@ -40,7 +51,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         gridLayoutManager = new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL,false);
-        movieAdapter = new MovieAdapter(spanCount, this);
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        movieAdapter = new MovieAdapter(this,displayMetrics.widthPixels/spanCount);
         moviesRecyclerView.setAdapter(movieAdapter);
         moviesRecyclerView.setLayoutManager(gridLayoutManager);
         moviesRecyclerView.setHasFixedSize(true);
@@ -73,7 +85,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                     }).show();
                 return true;
             case R.id.action_about:
-
+                LayoutInflater factory = LayoutInflater.from(this);
+                final View view = factory.inflate(R.layout.dialog_about, null);
+                builder.setTitle(R.string.about)
+                    .setView(view)
+                    .setCancelable(true)
+                    .show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -86,33 +104,49 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(movieDetailsIntent);
     }
 
-    private static class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
+    private class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //TODO loading indicator
+            pbLoadMovies.setVisibility(View.VISIBLE);
+            errorMessage.setVisibility(View.GONE);
         }
 
         @Override
         protected List<Movie> doInBackground(String... params) {
             String sortBy = sortingIndex==0?NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED;
-            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy);
-            try {
-                String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-                return JsonUtils.getInstance().processMovieResults(jsonResponse);
-            } catch (Exception e) {
-                e.printStackTrace();
+            //Check if network is available
+            ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+                URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy);
+                if (movieUrl==null) {
+                    errorMessage.setText(R.string.network_unavailable);
+                    return null;
+                }
+                try {
+                    String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
+                    return JsonUtils.getInstance().processMovieResults(jsonResponse);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            } else {
+                errorMessage.setText(R.string.network_unavailable);
                 return null;
             }
         }
 
         @Override
         protected void onPostExecute(List<Movie> movies) {
+            pbLoadMovies.setVisibility(View.GONE);
             if (movies != null) {
                 if (movieAdapter != null) {
                     movieAdapter.setMovieResults(movies);
                 }
+            } else {
+                errorMessage.setVisibility(View.VISIBLE);
             }
 
         }

@@ -20,23 +20,21 @@ import za.co.jcarklin.popularmovies.api.data.Movie;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
     private List<Movie> movieResults = new ArrayList<>(20);
-    private String imageUrlPath;
-    private int width = 0;
-    private int spanCount;
+    private static String imageUrlPath;
     private final MovieAdapterOnClickHandler movieAdapterOnClickHandler;
 
     public interface MovieAdapterOnClickHandler {
         void onClick(Movie selectedMovie);
     }
 
-    public MovieAdapter(int spanCount, MovieAdapterOnClickHandler clickHandler) {
-        this.spanCount = spanCount;
+    public MovieAdapter(MovieAdapterOnClickHandler clickHandler, int availableWidth) {
         imageUrlPath = ("https://image.tmdb.org/t/p/"); //TODO Retrieve this from db Configuration and store
         movieAdapterOnClickHandler = clickHandler;
+        calculateImageWidthRequired(availableWidth);
     }
 
     private void calculateImageWidthRequired(int availableWidth) {
-        width = availableWidth;
+        int width = availableWidth;
         int[] imageWidthOptions = {92, 154, 185, 342, 500, 780}; //TODO Retrieve this from db Configuration and store
         int option1, option2;
         for (int i = 0; i < imageWidthOptions.length - 1; i++) {
@@ -52,14 +50,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         imageUrlPath+=("w"+width);
     }
 
-
+    public static String getImageUrlPath() {
+        return imageUrlPath;
+    }
 
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (width==0) {
-            calculateImageWidthRequired(parent.getMeasuredWidth()/spanCount);
-        }
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.movie_item, parent, false);
@@ -101,7 +98,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
             Movie selectedMovie = movieResults.get(adapterPosition);
-            selectedMovie.setPosterPath(imageUrlPath+selectedMovie.getPosterPath());
             movieAdapterOnClickHandler.onClick(selectedMovie);
         }
     }

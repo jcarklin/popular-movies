@@ -47,7 +47,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (sourceIntent != null && sourceIntent.hasExtra(INTENT_EXTRA_SELECTED_MOVIE)) {
             Movie selectedMovie = sourceIntent.getParcelableExtra(INTENT_EXTRA_SELECTED_MOVIE);
             Picasso.get()
-                    .load(selectedMovie.getPosterPath())
+                    .load(MovieAdapter.getImageUrlPath()+selectedMovie.getPosterPath())
                     .into(moviePoster);
             //TODO add placeholder and error
             movieTitle.setText(selectedMovie.getTitle());

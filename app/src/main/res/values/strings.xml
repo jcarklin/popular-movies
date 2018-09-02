@@ -9,6 +9,9 @@
     <string name="released_label">Released: </string>
     <string name="the_movie_poster">The poster for the movie</string>
     <string name="user_rating">User Rating: </string>
+    <string name="network_unavailable">Network is currently unavailable</string>
+    <string name="about_nanodegee">Movie Browser is an assignment created and submitted as part of the The Android Developer Nanodegree program at Udacity</string>
+    <string name="about_tmdb">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
 
 
 </resources>
