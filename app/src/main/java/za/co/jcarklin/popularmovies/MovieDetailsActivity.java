@@ -48,8 +48,9 @@ public class MovieDetailsActivity extends AppCompatActivity {
             Movie selectedMovie = sourceIntent.getParcelableExtra(INTENT_EXTRA_SELECTED_MOVIE);
             Picasso.get()
                     .load(MovieAdapter.getImageUrlPath()+selectedMovie.getPosterPath())
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.unavailable)
                     .into(moviePoster);
-            //TODO add placeholder and error
             movieTitle.setText(selectedMovie.getTitle());
             releasedDate.setText(selectedMovie.getReleaseDate());
             userRating.setText(String.valueOf(selectedMovie.getVoteAverage()));

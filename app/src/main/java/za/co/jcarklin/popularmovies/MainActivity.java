@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     ProgressBar pbLoadMovies;
     @BindView(R.id.error_message)
     TextView errorMessage;
-    private GridLayoutManager gridLayoutManager;
     private int spanCount = 2;
     private int sortingIndex = 0;
 
@@ -50,14 +50,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        gridLayoutManager = new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL,false);
         DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        if (getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE) {
+            spanCount = 4;
+        }
         movieAdapter = new MovieAdapter(this,displayMetrics.widthPixels/spanCount);
         moviesRecyclerView.setAdapter(movieAdapter);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount, GridLayoutManager.VERTICAL, false);
         moviesRecyclerView.setLayoutManager(gridLayoutManager);
         moviesRecyclerView.setHasFixedSize(true);
-        heading.setText(getResources().getString(R.string.top_20, getResources().getString(R.string.popularity)));
-        new FetchMoviesTaskAsyncTask().execute();
+        if (savedInstanceState != null && savedInstanceState.containsKey("sortingIndex")) {
+            sortingIndex = savedInstanceState.getInt("sortingIndex");
+        }
+        fetchMovies();
     }
 
     //Menu
@@ -65,6 +70,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    private void fetchMovies() {
+        String sortBy = sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating);
+        new FetchMoviesTaskAsyncTask().execute();
+        heading.setText(getResources().getString(R.string.top_20, sortBy));
     }
 
     @Override
@@ -77,16 +88,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                         @SuppressLint("StringFormatInvalid")
                         public void onClick(DialogInterface dialogInterface, int selectedIndex) {
                             sortingIndex = selectedIndex;
-                            String sortBy = sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating);
-                            new FetchMoviesTaskAsyncTask().execute();
-                            heading.setText(getResources().getString(R.string.top_20, sortBy));
+                            fetchMovies();
                             dialogInterface.dismiss();
                         }
                     }).show();
                 return true;
             case R.id.action_about:
                 LayoutInflater factory = LayoutInflater.from(this);
-                final View view = factory.inflate(R.layout.dialog_about, null);
+                final View view = factory.inflate(R.layout.dialog_about,null);
                 builder.setTitle(R.string.about)
                     .setView(view)
                     .setCancelable(true)
@@ -104,6 +113,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         startActivity(movieDetailsIntent);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("sortingIndex", sortingIndex);
+    }
+
     private class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
 
         @Override
@@ -111,29 +126,32 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             super.onPreExecute();
             pbLoadMovies.setVisibility(View.VISIBLE);
             errorMessage.setVisibility(View.GONE);
+            moviesRecyclerView.setVisibility(View.INVISIBLE);
         }
 
         @Override
         protected List<Movie> doInBackground(String... params) {
             String sortBy = sortingIndex==0?NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED;
-            //Check if network is available
-            ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-            if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
-                URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy);
-                if (movieUrl==null) {
+            try {
+                //Check if network is available
+                ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+                if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+                    URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy);
+                    if (movieUrl==null) {
+                        errorMessage.setText(R.string.network_unavailable);
+                        return null;
+                    }
+
+                    String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
+                    return JsonUtils.getInstance().processMovieResults(jsonResponse);
+
+                } else {
                     errorMessage.setText(R.string.network_unavailable);
                     return null;
                 }
-                try {
-                    String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-                    return JsonUtils.getInstance().processMovieResults(jsonResponse);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            } else {
-                errorMessage.setText(R.string.network_unavailable);
+            } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
         }
@@ -141,10 +159,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected void onPostExecute(List<Movie> movies) {
             pbLoadMovies.setVisibility(View.GONE);
-            if (movies != null) {
-                if (movieAdapter != null) {
-                    movieAdapter.setMovieResults(movies);
-                }
+            if (movies != null && movieAdapter != null) {
+                moviesRecyclerView.setVisibility(View.VISIBLE);
+                errorMessage.setVisibility(View.GONE);
+                movieAdapter.setMovieResults(movies);
             } else {
                 errorMessage.setVisibility(View.VISIBLE);
             }

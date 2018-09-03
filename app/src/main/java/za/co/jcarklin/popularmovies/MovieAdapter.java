@@ -68,8 +68,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         Movie movie = movieResults.get(position);
         Picasso.get()
                 .load(imageUrlPath+movie.getPosterPath())
+                .placeholder(R.drawable.loading)
+                .error(R.drawable.unavailable)
                 .into(holder.moviePosterView);
-        //TODO add placeholder and error
     }
 
     @Override
@@ -88,7 +89,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         @BindView(R.id.iv_movie_poster)
         ImageView moviePosterView;
 
-        public MovieViewHolder(View itemView) {
+        MovieViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this,itemView);
             itemView.setOnClickListener(this);
