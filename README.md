@@ -25,3 +25,5 @@ The following libraries were used:
 * Picasso (http://square.github.io/picasso/)
 
 Movie data is supplied by The Movie Db (https://www.themoviedb.org/)
+
+Aside from the Udacity course material I read a lot of Medium posts (https://medium.com/) and the official Android documentation (https://developer.android.com/). 
