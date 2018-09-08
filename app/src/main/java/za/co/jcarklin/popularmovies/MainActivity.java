@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -21,16 +20,16 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.net.URL;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import za.co.jcarklin.popularmovies.api.JsonUtils;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
 import za.co.jcarklin.popularmovies.api.data.Movie;
+import za.co.jcarklin.popularmovies.model.FetchMoviesResponseHandler;
+import za.co.jcarklin.popularmovies.model.FetchMoviesTaskAsyncTask;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesResponseHandler {
 
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
@@ -73,9 +72,19 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     private void fetchMovies() {
-        String sortBy = sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating);
-        new FetchMoviesTaskAsyncTask().execute();
-        heading.setText(getResources().getString(R.string.top_20, sortBy));
+        //Check if network is available
+        ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm==null?null:cm.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+            setError(R.string.network_unavailable);
+            return;
+        }
+        pbLoadMovies.setVisibility(View.VISIBLE);
+        errorMessage.setVisibility(View.GONE);
+        moviesRecyclerView.setVisibility(View.INVISIBLE);
+        heading.setVisibility(View.INVISIBLE);
+        new FetchMoviesTaskAsyncTask(this).execute(sortingIndex==0? NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED);
+        heading.setText(getResources().getString(R.string.top_20, sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating)));
     }
 
     @Override
@@ -119,54 +128,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         outState.putInt("sortingIndex", sortingIndex);
     }
 
-    private class FetchMoviesTaskAsyncTask extends AsyncTask<String, Void, List<Movie>> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            pbLoadMovies.setVisibility(View.VISIBLE);
+    @Override
+    public void setMovies(List<Movie> movies) {
+        pbLoadMovies.setVisibility(View.GONE);
+        if (movies != null && movieAdapter != null) {
+            heading.setVisibility(View.VISIBLE);
+            moviesRecyclerView.setVisibility(View.VISIBLE);
             errorMessage.setVisibility(View.GONE);
-            moviesRecyclerView.setVisibility(View.INVISIBLE);
+            movieAdapter.setMovieResults(movies);
+        } else {
+            setError(R.string.network_unavailable);
         }
+    }
 
-        @Override
-        protected List<Movie> doInBackground(String... params) {
-            String sortBy = sortingIndex==0?NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED;
-            try {
-                //Check if network is available
-                ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-                if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
-                    URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy);
-                    if (movieUrl==null) {
-                        errorMessage.setText(R.string.network_unavailable);
-                        return null;
-                    }
-
-                    String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-                    return JsonUtils.getInstance().processMovieResults(jsonResponse);
-
-                } else {
-                    errorMessage.setText(R.string.network_unavailable);
-                    return null;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(List<Movie> movies) {
-            pbLoadMovies.setVisibility(View.GONE);
-            if (movies != null && movieAdapter != null) {
-                moviesRecyclerView.setVisibility(View.VISIBLE);
-                errorMessage.setVisibility(View.GONE);
-                movieAdapter.setMovieResults(movies);
-            } else {
-                errorMessage.setVisibility(View.VISIBLE);
-            }
-
-        }
+    @Override
+    public void setError(int errorResource) {
+        errorMessage.setText(errorResource);
+        errorMessage.setVisibility(View.VISIBLE);
     }
 }

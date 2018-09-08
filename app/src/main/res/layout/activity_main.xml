@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical|center_horizontal|center"
-            android:layout_margin="8dp"
+            android:layout_margin="@dimen/margin_rv_main"
             android:fadeScrollbars="true"
             android:scrollbars="vertical"
             tools:context=".MainActivity" />

@@ -14,5 +14,4 @@
         android:orderInCategory="2"
         app:showAsAction="ifRoom"
         android:title="@string/about"/>
-    <!--TODO change grid-->
 </menu>
