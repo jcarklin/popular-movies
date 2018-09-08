@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         //Check if network is available
         ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm==null?null:cm.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+        if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
             setError(R.string.network_unavailable);
             return;
         }
