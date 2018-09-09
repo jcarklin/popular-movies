@@ -1,4 +1,4 @@
-package za.co.jcarklin.popularmovies.api.data;
+package za.co.jcarklin.popularmovies.model.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

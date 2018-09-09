@@ -12,7 +12,7 @@ import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import za.co.jcarklin.popularmovies.api.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.Movie;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 

@@ -25,11 +25,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
-import za.co.jcarklin.popularmovies.api.data.Movie;
-import za.co.jcarklin.popularmovies.model.FetchMoviesResponseHandler;
+import za.co.jcarklin.popularmovies.model.FetchMoviesAsyncTaskHandler;
 import za.co.jcarklin.popularmovies.model.FetchMoviesTaskAsyncTask;
+import za.co.jcarklin.popularmovies.model.data.Movie;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesResponseHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesAsyncTaskHandler {
 
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
@@ -79,10 +79,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             setError(R.string.network_unavailable);
             return;
         }
-        pbLoadMovies.setVisibility(View.VISIBLE);
-        errorMessage.setVisibility(View.GONE);
-        moviesRecyclerView.setVisibility(View.INVISIBLE);
-        heading.setVisibility(View.INVISIBLE);
         new FetchMoviesTaskAsyncTask(this).execute(sortingIndex==0? NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED);
         heading.setText(getResources().getString(R.string.top_20, sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating)));
     }
@@ -130,11 +126,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public void setMovies(List<Movie> movies) {
-        pbLoadMovies.setVisibility(View.GONE);
         if (movies != null && movieAdapter != null) {
-            heading.setVisibility(View.VISIBLE);
-            moviesRecyclerView.setVisibility(View.VISIBLE);
-            errorMessage.setVisibility(View.GONE);
             movieAdapter.setMovieResults(movies);
         } else {
             setError(R.string.network_unavailable);
@@ -144,6 +136,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     public void setError(int errorResource) {
         errorMessage.setText(errorResource);
-        errorMessage.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setMoviesVisibility(int visibility) {
+        heading.setVisibility(visibility);
+        moviesRecyclerView.setVisibility(visibility);
+    }
+
+    @Override
+    public void setErrorVisibility(int visibility) {
+        errorMessage.setVisibility(visibility);
+    }
+
+    @Override
+    public void setProgressVisibilty(int visibilty) {
+        pbLoadMovies.setVisibility(visibilty);
     }
 }

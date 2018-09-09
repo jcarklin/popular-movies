@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import za.co.jcarklin.popularmovies.api.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.Movie;
 
 import static org.junit.Assert.assertEquals;
 

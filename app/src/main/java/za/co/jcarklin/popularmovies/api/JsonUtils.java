@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import za.co.jcarklin.popularmovies.api.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.Movie;
 
 public class JsonUtils {
 
