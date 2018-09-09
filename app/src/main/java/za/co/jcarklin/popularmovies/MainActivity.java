@@ -8,6 +8,10 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -25,11 +29,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
-import za.co.jcarklin.popularmovies.model.FetchMoviesAsyncTaskHandler;
-import za.co.jcarklin.popularmovies.model.FetchMoviesTaskAsyncTask;
+import za.co.jcarklin.popularmovies.model.FetchMoviesAsyncTaskLoader;
 import za.co.jcarklin.popularmovies.model.data.Movie;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, FetchMoviesAsyncTaskHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<List<Movie>> {
+
+    private static final int FETCH_MOVIES_LOADER_ID = 1;
 
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
@@ -61,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (savedInstanceState != null && savedInstanceState.containsKey("sortingIndex")) {
             sortingIndex = savedInstanceState.getInt("sortingIndex");
         }
+
+        getSupportLoaderManager().initLoader(FETCH_MOVIES_LOADER_ID, null, this);
+
         fetchMovies();
     }
 
@@ -79,7 +87,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             setError(R.string.network_unavailable);
             return;
         }
-        new FetchMoviesTaskAsyncTask(this).execute(sortingIndex==0? NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED);
+        Bundle sortByBundle = new Bundle();
+        sortByBundle.putString(FetchMoviesAsyncTaskLoader.SORT_BY_KEY,sortingIndex==0? NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED);
+        getSupportLoaderManager().restartLoader(FETCH_MOVIES_LOADER_ID, sortByBundle, this);
         heading.setText(getResources().getString(R.string.top_20, sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating)));
     }
 
@@ -124,33 +134,42 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         outState.putInt("sortingIndex", sortingIndex);
     }
 
+    @NonNull
     @Override
-    public void setMovies(List<Movie> movies) {
-        if (movies != null && movieAdapter != null) {
-            movieAdapter.setMovieResults(movies);
+    public Loader<List<Movie>> onCreateLoader(int id, @Nullable Bundle args) {
+        pbLoadMovies.setVisibility(View.VISIBLE);
+        moviesRecyclerView.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.GONE);
+        return new FetchMoviesAsyncTaskLoader(this,args);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> data) {
+        pbLoadMovies.setVisibility(View.GONE);
+        if (data != null && movieAdapter != null) {
+            setMovies(data);
         } else {
             setError(R.string.network_unavailable);
         }
     }
 
     @Override
-    public void setError(int errorResource) {
-        errorMessage.setText(errorResource);
+    public void onLoaderReset(@NonNull Loader<List<Movie>> loader) {
+
     }
 
-    @Override
-    public void setMoviesVisibility(int visibility) {
-        heading.setVisibility(visibility);
-        moviesRecyclerView.setVisibility(visibility);
+    private void setError(int error) {
+        errorMessage.setText(error);
+        errorMessage.setVisibility(View.VISIBLE);
+        moviesRecyclerView.setVisibility(View.INVISIBLE);
+        heading.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public void setErrorVisibility(int visibility) {
-        errorMessage.setVisibility(visibility);
+    private void setMovies(List<Movie> movies) {
+        movieAdapter.setMovieResults(movies);
+        moviesRecyclerView.setVisibility(View.VISIBLE);
+        heading.setVisibility(View.VISIBLE);
+        errorMessage.setVisibility(View.GONE);
     }
 
-    @Override
-    public void setProgressVisibilty(int visibilty) {
-        pbLoadMovies.setVisibility(visibilty);
-    }
 }
