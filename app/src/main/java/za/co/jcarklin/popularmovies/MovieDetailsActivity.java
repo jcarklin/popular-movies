@@ -2,7 +2,11 @@ package za.co.jcarklin.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -13,6 +17,7 @@ import com.squareup.picasso.Picasso;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.model.data.Movie;
+import za.co.jcarklin.popularmovies.settings.SettingsActivity;
 
 public class MovieDetailsActivity extends AppCompatActivity {
 
@@ -65,5 +70,30 @@ public class MovieDetailsActivity extends AppCompatActivity {
             }
             overview.setText(selectedMovie.getOverview());
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.details,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId()==R.id.action_settings) {
+            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+            startActivity(startSettingsActivity);
+            return true;
+        } else if (item.getItemId()==R.id.action_about) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            LayoutInflater factory = LayoutInflater.from(this);
+            final View view = factory.inflate(R.layout.dialog_about,null);
+            builder.setTitle(R.string.about)
+                    .setView(view)
+                    .setCancelable(true)
+                    .show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

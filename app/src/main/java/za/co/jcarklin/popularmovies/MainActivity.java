@@ -4,10 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -31,8 +33,12 @@ import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
 import za.co.jcarklin.popularmovies.model.FetchMoviesAsyncTaskLoader;
 import za.co.jcarklin.popularmovies.model.data.Movie;
+import za.co.jcarklin.popularmovies.settings.SettingsActivity;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<List<Movie>> {
+public class MainActivity extends AppCompatActivity implements
+        MovieAdapter.MovieAdapterOnClickHandler,
+        LoaderManager.LoaderCallbacks<List<Movie>>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int FETCH_MOVIES_LOADER_ID = 1;
 
@@ -68,8 +74,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         getSupportLoaderManager().initLoader(FETCH_MOVIES_LOADER_ID, null, this);
-
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         fetchMovies();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     //Menu
@@ -107,6 +119,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                             dialogInterface.dismiss();
                         }
                     }).show();
+                return true;
+            case R.id.action_settings:
+                Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
+                startActivity(startSettingsActivity);
                 return true;
             case R.id.action_about:
                 LayoutInflater factory = LayoutInflater.from(this);
@@ -172,4 +188,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         errorMessage.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_num_cols_key))) {
+            sortingIndex = Integer.valueOf(sharedPreferences.getString(key,"2"));
+            ((GridLayoutManager)moviesRecyclerView.getLayoutManager()).setSpanCount(sortingIndex);
+            fetchMovies();
+        }
+    }
 }

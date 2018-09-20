@@ -1,33 +1,64 @@
 package za.co.jcarklin.popularmovies.model.data;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.List;
 import java.util.Locale;
 
+@Entity(tableName = "fav_movies")
 public class Movie implements Parcelable {
 
-    private Integer voteCount;
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "fav_movie_id")
+    private Integer faveMovieId;
+    @ColumnInfo(name = "themoviedb_id")
     private Integer id;
-    private Boolean video = false;
-    private Float voteAverage;
-    private String title;
-    private Double popularity;
+    @ColumnInfo(name = "poster_path")
     private String posterPath;
+
+    @Ignore
+    private Integer voteCount;
+    @Ignore
+    private Boolean video = false;
+    @Ignore
+    private Float voteAverage;
+    @Ignore
+    private String title;
+    @Ignore
+    private Double popularity;
+    @Ignore
     private String originalLanguage;
+    @Ignore
     private String originalTitle;
+    @Ignore
     private List<Integer> genreIds = null;
+    @Ignore
     private String backdropPath;
+    @Ignore
     private Boolean adult = false;
+    @Ignore
     private String overview;
+    @Ignore
     private String releaseDate;
 
+    @Ignore
     public Movie() {
 
     }
 
+    public Movie(int faveMovieId, int id, String posterPath) {
+        this.faveMovieId = faveMovieId;
+        this.id = id;
+        this.posterPath = posterPath;
+    }
+
     private Movie(Parcel in) {
+        this.faveMovieId = in.readInt();
         this.voteCount = in.readInt();
         this.id = in.readInt();
         this.video = (in.readInt()==1);
@@ -41,6 +72,14 @@ public class Movie implements Parcelable {
         this.adult = (in.readInt()==1);
         this.overview = in.readString();
         this.releaseDate = in.readString();
+    }
+
+    public Integer getFaveMovieId() {
+        return faveMovieId;
+    }
+
+    public void setFaveMovieId(Integer faveMovieId) {
+        this.faveMovieId = faveMovieId;
     }
 
     public Integer getVoteCount() {
@@ -171,6 +210,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(faveMovieId);
         dest.writeInt(voteCount);
         dest.writeInt(id);
         dest.writeInt(video?1:0);
@@ -196,4 +236,6 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
+
+
 }

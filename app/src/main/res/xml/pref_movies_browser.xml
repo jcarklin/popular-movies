@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <ListPreference android:key="@string/pref_num_cols_key"
+        android:title="@string/pref_num_col_label"
+        android:defaultValue="@string/pref_num_col_default"
+        android:entries="@array/pref_num_col_options"
+        android:entryValues="@array/pref_num_col_values"/>
+
+    <CheckBoxPreference
+        android:title="@string/double_cols_for_landscape_label"
+        android:defaultValue="true"
+        android:key="@string/double_cols_for_landscape_key"
+        />
+
+</PreferenceScreen>
