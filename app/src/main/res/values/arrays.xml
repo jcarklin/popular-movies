@@ -3,6 +3,7 @@
     <string-array name="sort_options">
         <item>Most Popular</item>
         <item>Top Rated</item>
+        <item>Favourites</item>
     </string-array>
     <string-array name="pref_num_col_options">
         <item>Single Movie</item>

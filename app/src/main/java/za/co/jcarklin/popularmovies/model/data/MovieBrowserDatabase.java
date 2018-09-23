@@ -6,7 +6,7 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.util.Log;
 
-@Database(entities = {Movie.class},version = 1,exportSchema = false)
+@Database(entities = {MovieListing.class},version = 1,exportSchema = false)
 public abstract class MovieBrowserDatabase extends RoomDatabase {
 
     private static MovieBrowserDatabase ourInstance = null;
@@ -29,4 +29,5 @@ public abstract class MovieBrowserDatabase extends RoomDatabase {
         return ourInstance;
     }
 
+    public abstract MovieDao movieDao();
 }

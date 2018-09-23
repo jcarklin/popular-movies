@@ -32,12 +32,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
 import za.co.jcarklin.popularmovies.model.FetchMoviesAsyncTaskLoader;
-import za.co.jcarklin.popularmovies.model.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.MovieBrowserDatabase;
+import za.co.jcarklin.popularmovies.model.data.MovieListing;
 import za.co.jcarklin.popularmovies.settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<List<Movie>>,
+        LoaderManager.LoaderCallbacks<List<MovieListing>>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final int FETCH_MOVIES_LOADER_ID = 1;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements
     TextView errorMessage;
     private int spanCount = 2;
     private int sortingIndex = 0;
+
+    private MovieBrowserDatabase movieBrowserDatabase;
 
     @SuppressLint("StringFormatInvalid")
     @Override
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements
 
         getSupportLoaderManager().initLoader(FETCH_MOVIES_LOADER_ID, null, this);
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+        movieBrowserDatabase = MovieBrowserDatabase.getInstance(getApplicationContext());
         fetchMovies();
     }
 
@@ -93,16 +97,22 @@ public class MainActivity extends AppCompatActivity implements
 
     private void fetchMovies() {
         //Check if network is available
-        ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = cm==null?null:cm.getActiveNetworkInfo();
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm == null ? null : cm.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
             setError(R.string.network_unavailable);
             return;
         }
-        Bundle sortByBundle = new Bundle();
-        sortByBundle.putString(FetchMoviesAsyncTaskLoader.SORT_BY_KEY,sortingIndex==0? NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED);
-        getSupportLoaderManager().restartLoader(FETCH_MOVIES_LOADER_ID, sortByBundle, this);
-        heading.setText(getResources().getString(R.string.top_20, sortingIndex==0?getResources().getString(R.string.popularity):getResources().getString(R.string.rating)));
+
+        if (sortingIndex == 2) { //Favourites - fetch from Room
+            setMovies(movieBrowserDatabase.movieDao().fetchFavouriteMovies());
+            heading.setText("Favourite Movies");
+        } else {
+            Bundle sortByBundle = new Bundle();
+            sortByBundle.putString(FetchMoviesAsyncTaskLoader.SORT_BY_KEY, sortingIndex == 0 ? NetworkUtils.SORT_BY_POPULARITY : NetworkUtils.SORT_BY_TOP_RATED);
+            getSupportLoaderManager().restartLoader(FETCH_MOVIES_LOADER_ID, sortByBundle, this);
+            heading.setText(getResources().getString(R.string.top_20, sortingIndex == 0 ? getResources().getString(R.string.popularity) : getResources().getString(R.string.rating)));
+        }
     }
 
     @Override
@@ -138,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClick(Movie selectedMovie) {
+    public void onClick(MovieListing selectedMovie) {
         Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
         movieDetailsIntent.putExtra(MovieDetailsActivity.INTENT_EXTRA_SELECTED_MOVIE, selectedMovie);
         startActivity(movieDetailsIntent);
@@ -152,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @NonNull
     @Override
-    public Loader<List<Movie>> onCreateLoader(int id, @Nullable Bundle args) {
+    public Loader<List<MovieListing>> onCreateLoader(int id, @Nullable Bundle args) {
         pbLoadMovies.setVisibility(View.VISIBLE);
         moviesRecyclerView.setVisibility(View.INVISIBLE);
         errorMessage.setVisibility(View.GONE);
@@ -160,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> data) {
+    public void onLoadFinished(@NonNull Loader<List<MovieListing>> loader, List<MovieListing> data) {
         pbLoadMovies.setVisibility(View.GONE);
         if (data != null && movieAdapter != null) {
             setMovies(data);
@@ -170,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoaderReset(@NonNull Loader<List<Movie>> loader) {
+    public void onLoaderReset(@NonNull Loader<List<MovieListing>> loader) {
 
     }
 
@@ -181,7 +191,8 @@ public class MainActivity extends AppCompatActivity implements
         heading.setVisibility(View.INVISIBLE);
     }
 
-    private void setMovies(List<Movie> movies) {
+    private void setMovies(List<MovieListing> movies) {
+        //TODO if movies is empty or null
         movieAdapter.setMovieResults(movies);
         moviesRecyclerView.setVisibility(View.VISIBLE);
         heading.setVisibility(View.VISIBLE);

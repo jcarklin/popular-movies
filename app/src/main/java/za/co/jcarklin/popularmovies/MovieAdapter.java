@@ -15,16 +15,16 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import za.co.jcarklin.popularmovies.model.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.MovieListing;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
-    private List<Movie> movieResults = new ArrayList<>(20);
+    private List<MovieListing> movieResults = new ArrayList<>(20);
     private static String imageUrlPath;
     private final MovieAdapterOnClickHandler movieAdapterOnClickHandler;
 
     public interface MovieAdapterOnClickHandler {
-        void onClick(Movie selectedMovie);
+        void onClick(MovieListing selectedMovie);
     }
 
     public MovieAdapter(MovieAdapterOnClickHandler clickHandler, int availableWidth) {
@@ -65,7 +65,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        Movie movie = movieResults.get(position);
+        MovieListing movie = movieResults.get(position);
         Picasso.get()
                 .load(imageUrlPath+movie.getPosterPath())
                 .placeholder(R.drawable.loading)
@@ -78,7 +78,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return movieResults.size();
     }
 
-    public void setMovieResults(List<Movie> results) {
+    public void setMovieResults(List<MovieListing> results) {
         this.movieResults = results;
         notifyDataSetChanged();
     }
@@ -98,7 +98,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            Movie selectedMovie = movieResults.get(adapterPosition);
+            MovieListing selectedMovie = movieResults.get(adapterPosition);
             movieAdapterOnClickHandler.onClick(selectedMovie);
         }
     }

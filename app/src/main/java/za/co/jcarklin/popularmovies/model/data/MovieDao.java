@@ -11,11 +11,14 @@ import java.util.List;
 public interface MovieDao {
 
     @Query("SELECT * FROM fav_movies")
-    List<Movie> fetchFavouriteMovies();
+    List<MovieListing> fetchFavouriteMovies();
 
     @Insert
-    void addMovieToFavourites(Movie movie);
+    long addMovieToFavourites(MovieListing movie);
 
     @Delete
-    void removeMovieFromFavourites(Movie movie);
+    void removeMovieFromFavourites(MovieListing movie);
+
+    @Query("SELECT * FROM fav_movies WHERE themoviedb_id = :movieId")
+    MovieListing getMovieByTmdbId(String movieId);
 }

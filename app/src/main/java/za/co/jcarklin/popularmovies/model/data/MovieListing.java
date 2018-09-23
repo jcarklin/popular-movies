@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Entity(tableName = "fav_movies")
-public class Movie implements Parcelable {
+public class MovieListing implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "fav_movie_id")
@@ -47,31 +47,50 @@ public class Movie implements Parcelable {
     private String releaseDate;
 
     @Ignore
-    public Movie() {
+    public MovieListing() {
 
     }
 
-    public Movie(int faveMovieId, int id, String posterPath) {
+    public MovieListing(int faveMovieId, int id, String posterPath) {
         this.faveMovieId = faveMovieId;
         this.id = id;
         this.posterPath = posterPath;
     }
 
-    private Movie(Parcel in) {
-        this.faveMovieId = in.readInt();
-        this.voteCount = in.readInt();
+    private MovieListing(Parcel in) {
+        int fvm = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.faveMovieId = (fvm<0?null:fvm);
         this.id = in.readInt();
+        this.posterPath = in.readString();
+        this.voteCount = in.readInt();
         this.video = (in.readInt()==1);
         this.voteAverage = in.readFloat();
         this.title = in.readString();
         this.popularity = in.readDouble();
-        this.posterPath = in.readString();
         this.originalLanguage = in.readString();
         this.originalTitle = in.readString();
         this.backdropPath = in.readString();
         this.adult = (in.readInt()==1);
         this.overview = in.readString();
         this.releaseDate = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeValue(faveMovieId==null?-1:faveMovieId);
+        dest.writeInt(id);
+        dest.writeString(posterPath);
+        dest.writeInt(voteCount);
+        dest.writeInt(video?1:0);
+        dest.writeFloat(voteAverage);
+        dest.writeString(title);
+        dest.writeDouble(popularity);
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(backdropPath);
+        dest.writeInt(adult?1:0);
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
     }
 
     public Integer getFaveMovieId() {
@@ -208,32 +227,14 @@ public class Movie implements Parcelable {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(faveMovieId);
-        dest.writeInt(voteCount);
-        dest.writeInt(id);
-        dest.writeInt(video?1:0);
-        dest.writeFloat(voteAverage);
-        dest.writeString(title);
-        dest.writeDouble(popularity);
-        dest.writeString(posterPath);
-        dest.writeString(originalLanguage);
-        dest.writeString(originalTitle);
-        dest.writeString(backdropPath);
-        dest.writeInt(adult?1:0);
-        dest.writeString(overview);
-        dest.writeString(releaseDate);
-    }
+    public static final Parcelable.Creator<MovieListing> CREATOR = new Parcelable.Creator<MovieListing>() {
 
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
-
-        public Movie createFromParcel(Parcel in) {
-            return new Movie(in);
+        public MovieListing createFromParcel(Parcel in) {
+            return new MovieListing(in);
         }
 
-        public Movie[] newArray(int size) {
-            return new Movie[size];
+        public MovieListing[] newArray(int size) {
+            return new MovieListing[size];
         }
     };
 

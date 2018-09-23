@@ -11,12 +11,12 @@ import java.util.List;
 
 import za.co.jcarklin.popularmovies.api.JsonUtils;
 import za.co.jcarklin.popularmovies.api.NetworkUtils;
-import za.co.jcarklin.popularmovies.model.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.MovieListing;
 
-public class FetchMoviesAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
+public class FetchMoviesAsyncTaskLoader extends AsyncTaskLoader<List<MovieListing>> {
 
     public static final String SORT_BY_KEY = "sortBy";
-    private List<Movie> movieList;
+    private List<MovieListing> movieList;
     private Bundle bundle;
 
     public FetchMoviesAsyncTaskLoader(Context context, Bundle args) {
@@ -38,7 +38,7 @@ public class FetchMoviesAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
 
     @Nullable
     @Override
-    public List<Movie> loadInBackground() {
+    public List<MovieListing> loadInBackground() {
         String sortBy = bundle.getString(SORT_BY_KEY);
         if (sortBy==null || TextUtils.isEmpty(sortBy)) {
             return null;
@@ -49,7 +49,7 @@ public class FetchMoviesAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
                 return null;
             }
             String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-            return JsonUtils.getInstance().processMovieResults(jsonResponse);
+            return JsonUtils.getInstance().processMovieListingResults(jsonResponse);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -57,7 +57,7 @@ public class FetchMoviesAsyncTaskLoader extends AsyncTaskLoader<List<Movie>> {
     }
 
     @Override
-    public void deliverResult(@Nullable List<Movie> data) {
+    public void deliverResult(@Nullable List<MovieListing> data) {
         movieList = data;
         super.deliverResult(data);
     }

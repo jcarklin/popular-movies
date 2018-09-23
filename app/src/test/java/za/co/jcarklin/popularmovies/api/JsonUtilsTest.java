@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import za.co.jcarklin.popularmovies.model.data.Movie;
+import za.co.jcarklin.popularmovies.model.data.MovieListing;
 
 import static org.junit.Assert.assertEquals;
 
@@ -425,7 +425,7 @@ public class JsonUtilsTest {
 
             @Test
             public void processMovieResults_isCorrect() {
-                List<Movie> results = JsonUtils.getInstance().processMovieResults(movieJson);
+                List<MovieListing> results = JsonUtils.getInstance().processMovieListingResults(movieJson);
                 assertEquals(20,results.size());
             }
 }
