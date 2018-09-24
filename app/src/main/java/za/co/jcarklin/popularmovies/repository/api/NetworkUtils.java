@@ -1,4 +1,4 @@
-package za.co.jcarklin.popularmovies.api;
+package za.co.jcarklin.popularmovies.repository.api;
 
 import android.net.Uri;
 import android.util.Log;

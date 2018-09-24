@@ -1,10 +1,12 @@
-package za.co.jcarklin.popularmovies.model.data;
+package za.co.jcarklin.popularmovies.repository.db;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.util.Log;
+
+import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
 @Database(entities = {MovieListing.class},version = 1,exportSchema = false)
 public abstract class MovieBrowserDatabase extends RoomDatabase {
@@ -19,10 +21,8 @@ public abstract class MovieBrowserDatabase extends RoomDatabase {
         if (ourInstance == null) {
             synchronized (LOCK) {
                 Log.d(LOG_TAG, "Creating new Database");
-                //TODO REMOVE ALLOW MAIN THREAD QUERIES - THIS IS TEMPORARY!!!!!!!!!!
                 ourInstance = Room.databaseBuilder(context.getApplicationContext(),
                         MovieBrowserDatabase.class,MovieBrowserDatabase.DB_NAME)
-                        .allowMainThreadQueries()
                         .build();
             }
         }

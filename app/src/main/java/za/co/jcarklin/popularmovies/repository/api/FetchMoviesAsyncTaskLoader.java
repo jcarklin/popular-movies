@@ -1,4 +1,4 @@
-package za.co.jcarklin.popularmovies.model;
+package za.co.jcarklin.popularmovies.repository.api;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -9,9 +9,7 @@ import android.text.TextUtils;
 import java.net.URL;
 import java.util.List;
 
-import za.co.jcarklin.popularmovies.api.JsonUtils;
-import za.co.jcarklin.popularmovies.api.NetworkUtils;
-import za.co.jcarklin.popularmovies.model.data.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
 public class FetchMoviesAsyncTaskLoader extends AsyncTaskLoader<List<MovieListing>> {
 

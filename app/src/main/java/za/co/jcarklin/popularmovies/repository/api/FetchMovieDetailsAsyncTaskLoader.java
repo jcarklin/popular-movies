@@ -1,23 +1,21 @@
-package za.co.jcarklin.popularmovies.model;
+package za.co.jcarklin.popularmovies.repository.api;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
-import android.text.TextUtils;
 
 import java.net.URL;
 
-import za.co.jcarklin.popularmovies.api.JsonUtils;
-import za.co.jcarklin.popularmovies.api.NetworkUtils;
-import za.co.jcarklin.popularmovies.model.data.MovieBrowserDatabase;
-import za.co.jcarklin.popularmovies.model.data.MovieListing;
+import za.co.jcarklin.popularmovies.repository.db.MovieBrowserDatabase;
+import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
+import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
-public class FetchMovieDetailsAsyncTaskLoader extends AsyncTaskLoader<MovieListing> {
+public class FetchMovieDetailsAsyncTaskLoader extends AsyncTaskLoader<MovieDetails> {
 
     public static final String MOVIE_ID_KEY = "tmdbId";
 
-    private MovieListing movie;
+    private MovieDetails movie;
     private Bundle bundle;
     MovieBrowserDatabase movieBrowserDatabase;
 
@@ -41,23 +39,22 @@ public class FetchMovieDetailsAsyncTaskLoader extends AsyncTaskLoader<MovieListi
 
     @Nullable
     @Override
-    public MovieListing loadInBackground() {
-        String movieId = bundle.getString(MOVIE_ID_KEY);
-        if (movieId==null || TextUtils.isEmpty(movieId)) {
+    public MovieDetails loadInBackground() {
+        Integer movieId = bundle.getInt(MOVIE_ID_KEY);
+        if (movieId==null) {
             return null;
         }
         try {
-            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(movieId);
+            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(String.valueOf(movieId));
             if (movieUrl==null) {
                 return null;
             }
             String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-            MovieListing movie = JsonUtils.getInstance().processMovieDetails(jsonResponse);
+            MovieDetails movie = JsonUtils.getInstance().processMovieDetails(jsonResponse);
             //check if favourite:
             MovieListing fav = movieBrowserDatabase.movieDao().getMovieByTmdbId(movieId);
-            if (fav != null) {
-                movie.setFaveMovieId(fav.getFaveMovieId());
-            }
+            movie.setFavourite(fav != null);
+
             return movie;
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,7 +63,7 @@ public class FetchMovieDetailsAsyncTaskLoader extends AsyncTaskLoader<MovieListi
     }
 
     @Override
-    public void deliverResult(@Nullable MovieListing data) {
+    public void deliverResult(@Nullable MovieDetails data) {
         movie = data;
         super.deliverResult(data);
     }

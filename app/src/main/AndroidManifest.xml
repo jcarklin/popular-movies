@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.movielistings.MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,17 +23,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MovieDetailsActivity"
-            android:parentActivityName=".MainActivity"
-            android:launchMode="singleTop"
+            android:name=".ui.moviedetails.MovieDetailsActivity"
+            android:parentActivityName=".ui.movielistings.MainActivity"
             tools:ignore="UnusedAttribute">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.movielistings.MainActivity" />
         </activity>
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:label="@string/title_activity_settings"/>
     </application>
 
 </manifest>

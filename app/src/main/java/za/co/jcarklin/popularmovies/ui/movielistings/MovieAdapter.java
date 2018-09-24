@@ -1,4 +1,4 @@
-package za.co.jcarklin.popularmovies;
+package za.co.jcarklin.popularmovies.ui.movielistings;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -15,7 +15,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import za.co.jcarklin.popularmovies.model.data.MovieListing;
+import za.co.jcarklin.popularmovies.R;
+import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 

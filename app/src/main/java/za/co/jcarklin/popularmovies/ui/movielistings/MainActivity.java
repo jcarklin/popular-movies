@@ -1,15 +1,14 @@
-package za.co.jcarklin.popularmovies;
+package za.co.jcarklin.popularmovies.ui.movielistings;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -30,16 +29,16 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import za.co.jcarklin.popularmovies.api.NetworkUtils;
-import za.co.jcarklin.popularmovies.model.FetchMoviesAsyncTaskLoader;
-import za.co.jcarklin.popularmovies.model.data.MovieBrowserDatabase;
-import za.co.jcarklin.popularmovies.model.data.MovieListing;
-import za.co.jcarklin.popularmovies.settings.SettingsActivity;
+import za.co.jcarklin.popularmovies.R;
+import za.co.jcarklin.popularmovies.repository.api.FetchMoviesAsyncTaskLoader;
+import za.co.jcarklin.popularmovies.repository.api.NetworkUtils;
+import za.co.jcarklin.popularmovies.repository.db.MovieBrowserDatabase;
+import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.ui.moviedetails.MovieDetailsActivity;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<List<MovieListing>>,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        LoaderManager.LoaderCallbacks<List<MovieListing>> {
 
     private static final int FETCH_MOVIES_LOADER_ID = 1;
 
@@ -75,17 +74,13 @@ public class MainActivity extends AppCompatActivity implements
         if (savedInstanceState != null && savedInstanceState.containsKey("sortingIndex")) {
             sortingIndex = savedInstanceState.getInt("sortingIndex");
         }
-
-        getSupportLoaderManager().initLoader(FETCH_MOVIES_LOADER_ID, null, this);
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
         movieBrowserDatabase = MovieBrowserDatabase.getInstance(getApplicationContext());
-        fetchMovies();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+    protected void onResume() {
+        super.onResume();
+        fetchMovies();
     }
 
     //Menu
@@ -105,7 +100,15 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         if (sortingIndex == 2) { //Favourites - fetch from Room
-            setMovies(movieBrowserDatabase.movieDao().fetchFavouriteMovies());
+            movieBrowserDatabase.movieDao().fetchFavouriteMovies().observe(this, new Observer<List<MovieListing>>() {
+                @Override
+                public void onChanged(@Nullable List<MovieListing> movieListings) {
+                    if (sortingIndex == 2) {
+                        setMovies(movieListings);
+                    }
+                }
+            });
+            getSupportLoaderManager().destroyLoader(FETCH_MOVIES_LOADER_ID);
             heading.setText("Favourite Movies");
         } else {
             Bundle sortByBundle = new Bundle();
@@ -130,10 +133,6 @@ public class MainActivity extends AppCompatActivity implements
                         }
                     }).show();
                 return true;
-            case R.id.action_settings:
-                Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
-                startActivity(startSettingsActivity);
-                return true;
             case R.id.action_about:
                 LayoutInflater factory = LayoutInflater.from(this);
                 final View view = factory.inflate(R.layout.dialog_about,null);
@@ -150,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClick(MovieListing selectedMovie) {
         Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
-        movieDetailsIntent.putExtra(MovieDetailsActivity.INTENT_EXTRA_SELECTED_MOVIE, selectedMovie);
+        movieDetailsIntent.putExtra(MovieDetailsActivity.INTENT_EXTRA_SELECTED_MOVIE, selectedMovie.getId());
         startActivity(movieDetailsIntent);
     }
 
@@ -197,14 +196,5 @@ public class MainActivity extends AppCompatActivity implements
         moviesRecyclerView.setVisibility(View.VISIBLE);
         heading.setVisibility(View.VISIBLE);
         errorMessage.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_num_cols_key))) {
-            sortingIndex = Integer.valueOf(sharedPreferences.getString(key,"2"));
-            ((GridLayoutManager)moviesRecyclerView.getLayoutManager()).setSpanCount(sortingIndex);
-            fetchMovies();
-        }
     }
 }
