@@ -22,47 +22,35 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
 
     private static MovieBrowserRepository repository;
 
-    private List<MovieListing> popularMovieListingsCache;
-    private List<MovieListing> topRatedMovieListingsCache;
-    private LiveData<List<MovieListing>> favouriteMovies;
-
-    private MutableLiveData<List<MovieListing>> movieListings = new MutableLiveData<>();
-
+    private MutableLiveData<MovieListingData> favouriteMovies = new MutableLiveData<>();
+    private MutableLiveData<MovieListingData> movieListings = new MutableLiveData<>();
 
     private MovieBrowserRepository() {
     }
 
     private MovieBrowserRepository(Application application) {
         favouriteMovies = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
-        setMovieListings(SORT_BY_POPULARITY, true);
+        int status = MovieListingData.STATUS_PROCESSING;
+        if (favourites != null) {
+            status = MovieListingData.STATUS_SUCCESS;
+        } else {
+            status = MovieListingData.STATUS_FAILED;
+        }
+        favouriteMovies.setValue(new MovieListingData(favourites, SORT_BY_FAVOURITES, status, null));
+        new FetchMovieListingsAsyncTask(this)
+                .execute(NetworkUtils.SORT_BY_POPULARITY);
     }
 
-    public LiveData<List<MovieListing>> getMovieListings() {
+    public void refreshMovieData(int sortBy) {
+        new FetchMovieListingsAsyncTask(this).execute(sortBy);
+    }
+
+    public LiveData<MovieListingData> getMovieListings() {
         return movieListings;
     }
 
-    public LiveData<List<MovieListing>> getFavouriteMovies() {
+    public LiveData<MovieListingData> getFavouriteMovies() {
         return favouriteMovies;
-    }
-
-    public void setMovieListings(int sortBy, boolean refresh) {
-        switch (sortBy) {
-            case SORT_BY_POPULARITY:
-                if (popularMovieListingsCache != null && !refresh) {
-                    movieListings.setValue(popularMovieListingsCache);
-                } else {
-                    new FetchMovieListingsAsyncTask(this)
-                            .execute(NetworkUtils.SORT_BY_POPULARITY);
-                }
-                break;
-            case SORT_BY_TOP_RATED:
-                if (topRatedMovieListingsCache != null && !refresh) {
-                    movieListings.setValue(topRatedMovieListingsCache);
-                } else {
-                    new FetchMovieListingsAsyncTask(this)
-                            .execute(NetworkUtils.SORT_BY_TOP_RATED);
-                }
-        }
     }
 
     public static MovieBrowserRepository getInstance(Application application) {
@@ -74,12 +62,8 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
 
 
     @Override
-    public void setMovies(List<MovieListing> movies) {
+    public void setResult(MovieListingData movies) {
         movieListings.setValue(movies);
     }
 
-    @Override
-    public void setError(int errorResourceId) {
-
-    }
 }

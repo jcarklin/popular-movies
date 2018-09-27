@@ -8,13 +8,14 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
+import za.co.jcarklin.popularmovies.repository.MovieListingData;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
 @Dao
 public interface MovieDao {
 
     @Query("SELECT * FROM fav_movies")
-    LiveData<List<MovieListing>> fetchFavouriteMovies();
+    MovieListingData<LiveData<List<MovieListing>>> fetchFavouriteMovies();
 
     @Insert
     long addMovieToFavourites(MovieListing movie);
