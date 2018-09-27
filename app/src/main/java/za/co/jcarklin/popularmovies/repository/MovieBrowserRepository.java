@@ -22,23 +22,23 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
 
     private static MovieBrowserRepository repository;
 
-    private MutableLiveData<MovieListingData> favouriteMovies = new MutableLiveData<>();
+    private MutableLiveData<MovieListingData> favouriteMoviesData = new MutableLiveData<>();
     private MutableLiveData<MovieListingData> movieListings = new MutableLiveData<>();
 
     private MovieBrowserRepository() {
     }
 
     private MovieBrowserRepository(Application application) {
-        favouriteMovies = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
+        LiveData<List<MovieListing>> moviesLD = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
         int status = MovieListingData.STATUS_PROCESSING;
-        if (favourites != null) {
+        if (moviesLD != null) {
             status = MovieListingData.STATUS_SUCCESS;
         } else {
             status = MovieListingData.STATUS_FAILED;
         }
-        favouriteMovies.setValue(new MovieListingData(favourites, SORT_BY_FAVOURITES, status, null));
-        new FetchMovieListingsAsyncTask(this)
-                .execute(NetworkUtils.SORT_BY_POPULARITY);
+
+        favouriteMoviesData.setValue(new MovieListingData(moviesLD, SORT_BY_FAVOURITES, status, null));
+        new FetchMovieListingsAsyncTask(this).execute(SORT_BY_POPULARITY);
     }
 
     public void refreshMovieData(int sortBy) {
@@ -50,7 +50,7 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
     }
 
     public LiveData<MovieListingData> getFavouriteMovies() {
-        return favouriteMovies;
+        return favouriteMoviesData;
     }
 
     public static MovieBrowserRepository getInstance(Application application) {
@@ -60,10 +60,8 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
         return repository;
     }
 
-
     @Override
     public void setResult(MovieListingData movies) {
         movieListings.setValue(movies);
     }
-
 }

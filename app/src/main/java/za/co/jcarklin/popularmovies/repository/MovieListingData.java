@@ -16,9 +16,9 @@ public class MovieListingData<T> {
     private T movies;
     private int sortType = 0;
     private int status;
-    private int message;
+    private Integer message;
 
-    public MovieListingData(T movies, int sortType, int status, int messageRvalue) {
+    public MovieListingData(T movies, int sortType, int status, Integer messageRvalue) {
         this.movies = movies;
         this.sortType = sortType;
         this.status = status;
@@ -49,11 +49,11 @@ public class MovieListingData<T> {
         this.status = status;
     }
 
-    public int getMessage() {
+    public Integer getMessage() {
         return message;
     }
 
-    public void setMessage(int message) {
+    public void setMessage(Integer message) {
         this.message = message;
     }
 }

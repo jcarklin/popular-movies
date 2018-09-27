@@ -26,6 +26,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.R;
 import za.co.jcarklin.popularmovies.repository.MovieBrowserRepository;
+import za.co.jcarklin.popularmovies.repository.MovieListingData;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 import za.co.jcarklin.popularmovies.ui.moviedetails.MovieDetailsActivity;
 
@@ -45,9 +46,6 @@ public class MainActivity extends AppCompatActivity implements
     private int sortingIndex = 0;
 
     private MovieListingsViewModel movieListingsViewModel;
-
-    private List<MovieListing> favouriteMoviesCache;
-    private List<MovieListing> movieListingsCache;
 
 
     @SuppressLint("StringFormatInvalid")
@@ -73,12 +71,17 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setupViewModel() {
         movieListingsViewModel = ViewModelProviders.of(this).get(MovieListingsViewModel.class);
-        movieListingsViewModel.getMovieListings().observe(this, new Observer<List<MovieListing>>() {
+        movieListingsViewModel.getMovieListings().observe(this, new Observer<MovieListingData>() {
             @Override
-            public void onChanged(@Nullable List<MovieListing> movieListings) {
-                pbLoadMovies.setVisibility(View.GONE);
-                movieListingsCache = movieListings;
-                setMovies(movieListings);
+            public void onChanged(@Nullable MovieListingData movieListings) {
+                if (movieListings.getStatus() == MovieListingData.STATUS_PROCESSING) {
+                    showProgressBar();
+                } else if (movieListings.getStatus()==MovieListingData.STATUS_FAILED) {
+                    errorMessage.setText(movieListings.getMessage());
+                    showError();
+                } else {
+                    setMovies(movieListings.getMovies());
+                }
             }
         });
         movieListingsViewModel.getFavouriteMovies().observe(this, new Observer<List<MovieListing>>() {
@@ -90,10 +93,10 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
         });
-        movieListingsViewModel.getHeading().observe(this, new Observer<String>() {
+        movieListingsViewModel.getHeading().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(@Nullable String newHeading) {
-                heading.setText(newHeading);
+            public void onChanged(@Nullable Integer newHeading) {
+                heading.setText(getString(R.string.top_20,getResources().getString(newHeading)));
             }
         });
     }
@@ -164,4 +167,19 @@ public class MainActivity extends AppCompatActivity implements
         pbLoadMovies.setVisibility(View.GONE);
         errorMessage.setVisibility(View.GONE);
     }
+
+    private void showProgressBar() {
+        moviesRecyclerView.setVisibility(View.INVISIBLE);
+        heading.setVisibility(View.INVISIBLE);
+        pbLoadMovies.setVisibility(View.VISIBLE);
+        errorMessage.setVisibility(View.GONE);
+    }
+
+    private void showError() {
+        moviesRecyclerView.setVisibility(View.INVISIBLE);
+        heading.setVisibility(View.INVISIBLE);
+        pbLoadMovies.setVisibility(View.GONE);
+        errorMessage.setVisibility(View.VISIBLE);
+    }
+
 }

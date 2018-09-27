@@ -11,6 +11,7 @@ import java.util.List;
 
 import za.co.jcarklin.popularmovies.R;
 import za.co.jcarklin.popularmovies.repository.MovieBrowserRepository;
+import za.co.jcarklin.popularmovies.repository.MovieListingData;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
 public class MovieListingsViewModel extends AndroidViewModel {
@@ -21,23 +22,23 @@ public class MovieListingsViewModel extends AndroidViewModel {
     private int sortingIndex = 0;
 
     private final MovieBrowserRepository movieBrowserRepository;
-    private final LiveData<List<MovieListing>> movieListings;
-    private final LiveData<List<MovieListing>> favouriteMovies;
+    private final LiveData<MovieListingData> movieListings;
+    private final LiveData<MovieListingData> favouriteMovies;
 
-    private MutableLiveData<String> heading = new MutableLiveData<>();
+    private MutableLiveData<Integer> heading = new MutableLiveData<>();
 
     public MovieListingsViewModel(@NonNull Application application) {
         super(application);
         movieBrowserRepository = MovieBrowserRepository.getInstance(application);
         movieListings = movieBrowserRepository.getMovieListings();
         favouriteMovies = movieBrowserRepository.getFavouriteMovies();
-        setMovieListings(sortingIndex, true);
+        setMovieListings(sortingIndex);
     }
 
-    public void setMovieListings(int sortBy, boolean refresh) {
+    public void setMovieListings(int sortBy) {
         sortingIndex = sortBy;
         if (sortBy != MovieBrowserRepository.SORT_BY_FAVOURITES) {
-            movieBrowserRepository.setMovieListings(sortingIndex, refresh);
+            movieBrowserRepository.refreshMovieData(sortingIndex);
         }
     }
 
@@ -45,26 +46,26 @@ public class MovieListingsViewModel extends AndroidViewModel {
         Resources resources = getApplication().getResources();
         switch (sortingIndex) {
             case MovieBrowserRepository.SORT_BY_POPULARITY:
-                heading.setValue(resources.getString(R.string.top_20, resources.getString(R.string.popularity)));
+                heading.setValue(R.string.popularity);
                 break;
             case MovieBrowserRepository.SORT_BY_TOP_RATED:
-                heading.setValue(resources.getString(R.string.top_20, resources.getString(R.string.rating)));
+                heading.setValue(R.string.rating);
                 break;
             default:
-                heading.setValue(resources.getString(R.string.favourite_movies));
+                heading.setValue(R.string.favourite_movies);
                 break;
         }
     }
 
-    public LiveData<List<MovieListing>> getMovieListings() {
+    public LiveData<MovieListingData> getMovieListings() {
         return movieListings;
     }
 
-    public LiveData<List<MovieListing>> getFavouriteMovies() {
+    public LiveData<MovieListingData> getFavouriteMovies() {
         return favouriteMovies;
     }
 
-    public LiveData<String> getHeading() {
+    public LiveData<Integer> getHeading() {
         return heading;
     }
 
