@@ -48,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements
     ProgressBar pbLoadMovies;
     @BindView(R.id.error_message)
     TextView errorMessage;
+
+    MenuItem refresh;
+
     private int spanCount = 2;
     private int sortingIndex = 0;
 
@@ -131,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        refresh = menu.findItem(R.id.action_refresh);
         return true;
     }
 
@@ -147,16 +151,27 @@ public class MainActivity extends AppCompatActivity implements
                             sortingIndex = selectedIndex;
                             switch (sortingIndex) {
                                 case SORT_BY_POPULARITY:
+                                    refresh.setVisible(true);
                                     displayMovieListings(movieListingsViewModel.getPopularMovies().getValue());
                                     break;
                                 case SORT_BY_TOP_RATED:
+                                    refresh.setVisible(true);
                                     displayMovieListings(movieListingsViewModel.getTopRatedMovies().getValue());
+                                    break;
                                 default:
+                                    refresh.setVisible(false);
                                     displayMovieListings(movieListingsViewModel.getFavouriteMovies().getValue());
                             }
                             dialogInterface.dismiss();
                         }
                     }).show();
+                return true;
+            case R.id.action_refresh:
+                if (sortingIndex==SORT_BY_POPULARITY) {
+                    movieListingsViewModel.refreshPopularMovies();
+                } else if (sortingIndex==SORT_BY_TOP_RATED) {
+                    movieListingsViewModel.refreshTopRatedMovies();
+                }
                 return true;
             case R.id.action_about:
                 LayoutInflater factory = LayoutInflater.from(this);
@@ -185,8 +200,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void displayMovieListings(List<MovieListing> movies) {
-        movieAdapter.setMovieResults(movies);
-        heading.setText(getString(R.string.top_20,getResources().getString(movieListingsViewModel.getHeading())));
+        if (sortingIndex == SORT_BY_FAVOURITES) {
+            heading.setText(getString(R.string.favourite_movies));
+        } else {
+            heading.setText(getString(R.string.top_20, getResources().getString(movieListingsViewModel.getHeading(sortingIndex))));
+        }
+        if (sortingIndex == SORT_BY_FAVOURITES && movies.isEmpty()) {
+            //TODO
+            showEmptyFavourites();
+            errorMessage.setText("No Favourites");
+            showError();
+        } else {
+            showMovies();
+            movieAdapter.setMovieResults(movies);
+        }
     }
 
     private void showMovies() {
@@ -210,4 +237,10 @@ public class MainActivity extends AppCompatActivity implements
         errorMessage.setVisibility(View.VISIBLE);
     }
 
+    private void showEmptyFavourites() {
+        moviesRecyclerView.setVisibility(View.INVISIBLE);
+        heading.setVisibility(View.INVISIBLE);
+        pbLoadMovies.setVisibility(View.GONE);
+        errorMessage.setVisibility(View.INVISIBLE);
+    }
 }

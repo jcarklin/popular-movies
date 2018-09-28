@@ -3,6 +3,9 @@ package za.co.jcarklin.popularmovies.repository;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import java.util.List;
 
@@ -32,12 +35,14 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
     private final MutableLiveData<FetchStatus> status;
 
     private MovieDao movieDao;
+    private  ConnectivityManager connectivityManager;
 
     private MovieBrowserRepository(Application application) {
         favouriteMovies = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
         popularMovies = new MutableLiveData<>();
         topRatedMovies = new MutableLiveData<>();
         status = new MutableLiveData<>();
+        connectivityManager = (ConnectivityManager)application.getSystemService(Context.CONNECTIVITY_SERVICE);
         refreshPopularMovieData();
     }
 
@@ -58,13 +63,17 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
     }
 
     public void refreshPopularMovieData() {
-        status.setValue(new FetchStatus(STATUS_PROCESSING, null));
-        new FetchMovieListingsAsyncTask(this).execute(SORT_BY_POPULARITY);
+        if (checkNetworkAvailability()) {
+            status.setValue(new FetchStatus(STATUS_PROCESSING, null));
+            new FetchMovieListingsAsyncTask(this).execute(SORT_BY_POPULARITY);
+        }
     }
 
     public void refreshTopRatedMovieData() {
-        status.setValue(new FetchStatus(STATUS_PROCESSING, null));
-        new FetchMovieListingsAsyncTask(this).execute(SORT_BY_TOP_RATED);
+        if (checkNetworkAvailability()) {
+            status.setValue(new FetchStatus(STATUS_PROCESSING, null));
+            new FetchMovieListingsAsyncTask(this).execute(SORT_BY_TOP_RATED);
+        }
     }
 
     public static MovieBrowserRepository getInstance(Application application) {
@@ -80,6 +89,9 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
             status.setValue(new FetchStatus(STATUS_SUCCESS,null));
             if (sortBy == SORT_BY_POPULARITY) {
                 popularMovies.setValue(movies);
+                if (topRatedMovies.getValue()==null) {
+                    refreshTopRatedMovieData();
+                }
             } else {
                 topRatedMovies.setValue(movies);
             }
@@ -88,5 +100,16 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
         }
 
 
+    }
+
+    private boolean checkNetworkAvailability() {
+        //Check if network is available
+        NetworkInfo networkInfo = connectivityManager==null ? null : connectivityManager.getActiveNetworkInfo();
+        boolean available = true;
+        if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+            status.setValue(new FetchStatus(STATUS_FAILED,R.string.network_unavailable));
+            available = false;
+        }
+        return available;
     }
 }

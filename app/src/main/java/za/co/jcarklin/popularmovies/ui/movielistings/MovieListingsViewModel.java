@@ -23,9 +23,6 @@ public class MovieListingsViewModel extends AndroidViewModel {
     private LiveData<List<MovieListing>> popularMovies;
     private LiveData<List<MovieListing>> topRatedMovies;
     private LiveData<FetchStatus> fetchStatus;
-    private int heading = R.string.popularity;
-
-    private int sortingIndex = 0;
 
     private final MovieBrowserRepository movieBrowserRepository;
 
@@ -62,7 +59,7 @@ public class MovieListingsViewModel extends AndroidViewModel {
         movieBrowserRepository.refreshTopRatedMovieData();
     }
 
-    public int getHeading() {
+    public int getHeading(int sortingIndex) {
         switch (sortingIndex) {
             case SORT_BY_POPULARITY:
                 return R.string.popularity;
