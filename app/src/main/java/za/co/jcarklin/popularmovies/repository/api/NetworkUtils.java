@@ -13,14 +13,12 @@ import javax.net.ssl.HttpsURLConnection;
 
 import za.co.jcarklin.popularmovies.BuildConfig;
 
+import static za.co.jcarklin.popularmovies.Constants.BASE_MOVIEDB_URL;
+import static za.co.jcarklin.popularmovies.Constants.MOVIEDB_MOVIE;
+
 public final class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
-
-    private static final String BASE_MOVIEDB_URL = "https://api.themoviedb.org/3/";
-    private static final String MOVIEDB_MOVIE = "movie";
-    public static final String SORT_BY_POPULARITY = "popular";
-    public static final String SORT_BY_TOP_RATED = "top_rated";
 
     private static final NetworkUtils networkUtils = new NetworkUtils();
 

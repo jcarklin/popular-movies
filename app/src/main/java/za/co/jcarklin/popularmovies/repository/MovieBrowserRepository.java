@@ -6,19 +6,21 @@ import android.arch.lifecycle.MutableLiveData;
 
 import java.util.List;
 
+import za.co.jcarklin.popularmovies.R;
 import za.co.jcarklin.popularmovies.repository.api.FetchMovieListingsAsyncTask;
 import za.co.jcarklin.popularmovies.repository.api.FetchMoviesResponseHandler;
-import za.co.jcarklin.popularmovies.repository.api.NetworkUtils;
 import za.co.jcarklin.popularmovies.repository.db.MovieBrowserDatabase;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
-public class MovieBrowserRepository implements FetchMoviesResponseHandler {
+import static za.co.jcarklin.popularmovies.Constants.SORT_BY_FAVOURITES;
+import static za.co.jcarklin.popularmovies.Constants.SORT_BY_POPULARITY;
+import static za.co.jcarklin.popularmovies.Constants.STATUS_FAILED;
+import static za.co.jcarklin.popularmovies.Constants.STATUS_PROCESSING;
+import static za.co.jcarklin.popularmovies.Constants.STATUS_SUCCESS;
+
+public class MovieBrowserRepository implements FetchMoviesResponseHandler{
 
     private static final String TAG = MovieBrowserRepository.class.getSimpleName();
-    public static final int SORT_BY_POPULARITY = 0;
-    public static final int SORT_BY_TOP_RATED = 1;
-    public static final int SORT_BY_FAVOURITES = 2;
-
 
     private static MovieBrowserRepository repository;
 
@@ -29,16 +31,15 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
     }
 
     private MovieBrowserRepository(Application application) {
-        LiveData<List<MovieListing>> moviesLD = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
-        int status = MovieListingData.STATUS_PROCESSING;
-        if (moviesLD != null) {
-            status = MovieListingData.STATUS_SUCCESS;
+        LiveData<List<MovieListing>> favouriteMoviesLiveData = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
+        int status = STATUS_PROCESSING;
+        if (favouriteMoviesLiveData != null) {
+            status = STATUS_SUCCESS;
         } else {
-            status = MovieListingData.STATUS_FAILED;
+            status = STATUS_FAILED;
         }
-
-        favouriteMoviesData.setValue(new MovieListingData(moviesLD, SORT_BY_FAVOURITES, status, null));
-        new FetchMovieListingsAsyncTask(this).execute(SORT_BY_POPULARITY);
+        favouriteMoviesData.setValue(new MovieListingData(favouriteMoviesLiveData, SORT_BY_FAVOURITES, status, null));
+        refreshMovieData(SORT_BY_POPULARITY);
     }
 
     public void refreshMovieData(int sortBy) {
@@ -61,7 +62,18 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler {
     }
 
     @Override
-    public void setResult(MovieListingData movies) {
-        movieListings.setValue(movies);
+    public void setMovies(List<MovieListing> movies, int sortBy) {
+        Integer status = STATUS_SUCCESS;
+        Integer message = null;
+        MutableLiveData<List<MovieListing>> moviesLiveData = null;
+        if (movies != null) {
+            moviesLiveData  = new MutableLiveData<>();
+            moviesLiveData.setValue(movies);
+        } else {
+            status = STATUS_FAILED;
+            message = R.string.network_unavailable;
+        }
+        moviesLiveData.setValue(movies);
+        movieListings.setValue(new MovieListingData(moviesLiveData, sortBy, status, message));
     }
 }

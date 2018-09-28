@@ -19,6 +19,9 @@ public interface MovieDao {
     @Insert
     long addMovieToFavourites(MovieListing movie);
 
+    @Insert
+    void addMovies(MovieListing... movies);
+
     @Delete
     void removeMovieFromFavourites(MovieListing movie);
 

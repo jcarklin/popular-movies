@@ -25,10 +25,15 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.R;
-import za.co.jcarklin.popularmovies.repository.MovieBrowserRepository;
 import za.co.jcarklin.popularmovies.repository.MovieListingData;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 import za.co.jcarklin.popularmovies.ui.moviedetails.MovieDetailsActivity;
+
+import static za.co.jcarklin.popularmovies.Constants.SORT_BY_FAVOURITES;
+import static za.co.jcarklin.popularmovies.Constants.SORT_BY_POPULARITY;
+import static za.co.jcarklin.popularmovies.Constants.SORT_BY_TOP_RATED;
+import static za.co.jcarklin.popularmovies.Constants.STATUS_FAILED;
+import static za.co.jcarklin.popularmovies.Constants.STATUS_PROCESSING;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler {
@@ -71,32 +76,35 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setupViewModel() {
         movieListingsViewModel = ViewModelProviders.of(this).get(MovieListingsViewModel.class);
-        movieListingsViewModel.getMovieListings().observe(this, new Observer<MovieListingData>() {
+        movieListingsViewModel.getMovieListingsLiveData().observe(this, new Observer<MovieListingData>() {
             @Override
             public void onChanged(@Nullable MovieListingData movieListings) {
-                if (movieListings.getStatus() == MovieListingData.STATUS_PROCESSING) {
+                if (movieListings.getStatus() == STATUS_PROCESSING) {
                     showProgressBar();
-                } else if (movieListings.getStatus()==MovieListingData.STATUS_FAILED) {
+                } else if (movieListings.getStatus()==STATUS_FAILED) {
                     errorMessage.setText(movieListings.getMessage());
                     showError();
                 } else {
-                    setMovies(movieListings.getMovies());
+                    if (movieListings.getSortType()== SORT_BY_POPULARITY) {
+                        movieListingsViewModel.setPopularMovies(movieListings.getMovies().getValue());
+                    } else if (movieListings.getSortType()==SORT_BY_TOP_RATED) {
+                        movieListingsViewModel.setTopRatedMovies(movieListings.getMovies().getValue());
+                    }
+                    if (sortingIndex==movieListings.getSortType()) {
+                        displayMovieListings();
+                    }
+
                 }
             }
         });
-        movieListingsViewModel.getFavouriteMovies().observe(this, new Observer<List<MovieListing>>() {
+
+        movieListingsViewModel.getFavouriteMoviesLiveData().getValue().getMovies().observe(this, new Observer<List<MovieListing>>() {
             @Override
             public void onChanged(@Nullable List<MovieListing> movieListings) {
-                favouriteMoviesCache = movieListings;
-                if (sortingIndex==MovieBrowserRepository.SORT_BY_FAVOURITES) {
-                    setMovies(favouriteMoviesCache);
+                movieListingsViewModel.setFavouriteMovies(movieListings);
+                if (sortingIndex==SORT_BY_FAVOURITES) {
+                    displayMovieListings();
                 }
-            }
-        });
-        movieListingsViewModel.getHeading().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(@Nullable Integer newHeading) {
-                heading.setText(getString(R.string.top_20,getResources().getString(newHeading)));
             }
         });
     }
@@ -115,17 +123,15 @@ public class MainActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.action_sort:
                 builder.setTitle(R.string.sort_by)
-                    .setSingleChoiceItems(getResources().getStringArray(R.array.sort_options), sortingIndex,new DialogInterface.OnClickListener() {
+                    .setSingleChoiceItems(getResources().getStringArray(R.array.sort_options), sortingIndex, new DialogInterface.OnClickListener() {
                         @SuppressLint("StringFormatInvalid")
                         public void onClick(DialogInterface dialogInterface, int selectedIndex) {
                             sortingIndex = selectedIndex;
-                            pbLoadMovies.setVisibility(View.VISIBLE);
-                            movieListingsViewModel.setMovieListings(sortingIndex, false);
-                            if (sortingIndex==MovieBrowserRepository.SORT_BY_FAVOURITES) {
-                                setMovies(favouriteMoviesCache);
+                            movieListingsViewModel.setMovieListings(sortingIndex);
+                            if (movieListingsViewModel.getMovieListings() != null) {
+                                displayMovieListings();
                             }
                             dialogInterface.dismiss();
-
                         }
                     }).show();
                 return true;
@@ -155,9 +161,9 @@ public class MainActivity extends AppCompatActivity implements
         outState.putInt("sortingIndex", sortingIndex);
     }
 
-    private void setMovies(List<MovieListing> movies) {
-        movieAdapter.setMovieResults(movies);
-        movieListingsViewModel.setHeading();
+    private void displayMovieListings() {
+        movieAdapter.setMovieResults(movieListingsViewModel.getMovieListings());
+        heading.setText(getString(R.string.top_20,getResources().getString(movieListingsViewModel.getHeading())));
         showMovies();
     }
 

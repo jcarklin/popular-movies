@@ -5,14 +5,16 @@ import android.os.AsyncTask;
 import java.net.URL;
 import java.util.List;
 
-import za.co.jcarklin.popularmovies.R;
-import za.co.jcarklin.popularmovies.repository.MovieBrowserRepository;
-import za.co.jcarklin.popularmovies.repository.MovieListingData;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 
-public class FetchMovieListingsAsyncTask extends AsyncTask<Integer, Void, MovieListingData> {
+import static za.co.jcarklin.popularmovies.Constants.POPULARITY;
+import static za.co.jcarklin.popularmovies.Constants.SORT_BY_POPULARITY;
+import static za.co.jcarklin.popularmovies.Constants.TOP_RATED;
+
+public class FetchMovieListingsAsyncTask extends AsyncTask<Integer, Void, List<MovieListing>> {
 
     FetchMoviesResponseHandler fetchMoviesResponseHandler;
+    int sortBy;
 
     public FetchMovieListingsAsyncTask(FetchMoviesResponseHandler fetchMoviesResponseHandler) {
         this.fetchMoviesResponseHandler = fetchMoviesResponseHandler;
@@ -24,31 +26,27 @@ public class FetchMovieListingsAsyncTask extends AsyncTask<Integer, Void, MovieL
     }
 
     @Override
-    protected MovieListingData doInBackground(Integer... params) {
-        Integer sortBy = params[0];
+    protected List<MovieListing> doInBackground(Integer... params) {
+        sortBy = params[0];
         Integer message = null;
         List<MovieListing> movieListings = null;
         int status;
+
         try {
-            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy == MovieBrowserRepository.SORT_BY_POPULARITY?NetworkUtils.SORT_BY_POPULARITY:NetworkUtils.SORT_BY_TOP_RATED);
-            if (movieUrl==null) {
-                message = R.string.network_unavailable;
-                status = MovieListingData.STATUS_FAILED;
+            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy == SORT_BY_POPULARITY?POPULARITY:TOP_RATED);
+            if (movieUrl!=null) {
+                String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
+                movieListings = JsonUtils.getInstance().processMovieListingResults(jsonResponse);
             }
-            String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-            movieListings = JsonUtils.getInstance().processMovieListingResults(jsonResponse);
-            status = MovieListingData.STATUS_SUCCESS;
         } catch (Exception e) {
             e.printStackTrace();
-            message = R.string.network_unavailable;
-            status = MovieListingData.STATUS_FAILED;
         }
-        return new MovieListingData(movieListings,sortBy,status,message);
+        return movieListings;
     }
 
     @Override
-    protected void onPostExecute(MovieListingData movies) {
-        fetchMoviesResponseHandler.setResult(movies);
+    protected void onPostExecute(List<MovieListing> movies) {
+        fetchMoviesResponseHandler.setMovies(movies, sortBy);
     }
 
 }
