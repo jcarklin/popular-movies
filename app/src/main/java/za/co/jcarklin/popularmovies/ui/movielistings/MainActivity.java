@@ -25,7 +25,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import za.co.jcarklin.popularmovies.R;
-import za.co.jcarklin.popularmovies.repository.MovieListingData;
+import za.co.jcarklin.popularmovies.repository.model.FetchStatus;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 import za.co.jcarklin.popularmovies.ui.moviedetails.MovieDetailsActivity;
 
@@ -37,6 +37,7 @@ import static za.co.jcarklin.popularmovies.Constants.STATUS_PROCESSING;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler {
+
 
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
@@ -51,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements
     private int sortingIndex = 0;
 
     private MovieListingsViewModel movieListingsViewModel;
-
 
     @SuppressLint("StringFormatInvalid")
     @Override
@@ -76,34 +76,52 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setupViewModel() {
         movieListingsViewModel = ViewModelProviders.of(this).get(MovieListingsViewModel.class);
-        movieListingsViewModel.getMovieListingsLiveData().observe(this, new Observer<MovieListingData>() {
+        movieListingsViewModel.getPopularMovies().observe(this, new Observer<List<MovieListing>>() {
             @Override
-            public void onChanged(@Nullable MovieListingData movieListings) {
-                if (movieListings.getStatus() == STATUS_PROCESSING) {
-                    showProgressBar();
-                } else if (movieListings.getStatus()==STATUS_FAILED) {
-                    errorMessage.setText(movieListings.getMessage());
-                    showError();
-                } else {
-                    if (movieListings.getSortType()== SORT_BY_POPULARITY) {
-                        movieListingsViewModel.setPopularMovies(movieListings.getMovies().getValue());
-                    } else if (movieListings.getSortType()==SORT_BY_TOP_RATED) {
-                        movieListingsViewModel.setTopRatedMovies(movieListings.getMovies().getValue());
-                    }
-                    if (sortingIndex==movieListings.getSortType()) {
-                        displayMovieListings();
-                    }
+            public void onChanged(@Nullable List<MovieListing> movieListings) {
 
+                if (movieListings.isEmpty()) {
+                    movieListingsViewModel.refreshPopularMovies();
+                }
+                if (sortingIndex==SORT_BY_POPULARITY) {
+                    displayMovieListings(movieListings);
+                }
+
+            }
+        });
+
+        movieListingsViewModel.getTopRatedMovies().observe(this, new Observer<List<MovieListing>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieListing> movieListings) {
+                if (movieListings.isEmpty()) {
+                    movieListingsViewModel.refreshTopRatedMovies();
+                }
+                if (sortingIndex==SORT_BY_TOP_RATED) {
+                    displayMovieListings(movieListings);
+                }
+
+            }
+        });
+
+        movieListingsViewModel.getFavouriteMovies().observe(this, new Observer<List<MovieListing>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieListing> movieListings) {
+                if (sortingIndex==SORT_BY_FAVOURITES) {
+                    displayMovieListings(movieListings);
                 }
             }
         });
 
-        movieListingsViewModel.getFavouriteMoviesLiveData().getValue().getMovies().observe(this, new Observer<List<MovieListing>>() {
+        movieListingsViewModel.getFetchStatus().observe(this, new Observer<FetchStatus>() {
             @Override
-            public void onChanged(@Nullable List<MovieListing> movieListings) {
-                movieListingsViewModel.setFavouriteMovies(movieListings);
-                if (sortingIndex==SORT_BY_FAVOURITES) {
-                    displayMovieListings();
+            public void onChanged(@Nullable FetchStatus fetchStatus) {
+                if (fetchStatus.getMovieStatus() == STATUS_PROCESSING) {
+                    showProgressBar();
+                } else if (fetchStatus.getMovieStatus() == STATUS_FAILED) {
+                    errorMessage.setText(fetchStatus.getStatusMessage());
+                    showError();
+                } else {
+                    showMovies();
                 }
             }
         });
@@ -127,9 +145,14 @@ public class MainActivity extends AppCompatActivity implements
                         @SuppressLint("StringFormatInvalid")
                         public void onClick(DialogInterface dialogInterface, int selectedIndex) {
                             sortingIndex = selectedIndex;
-                            movieListingsViewModel.setMovieListings(sortingIndex);
-                            if (movieListingsViewModel.getMovieListings() != null) {
-                                displayMovieListings();
+                            switch (sortingIndex) {
+                                case SORT_BY_POPULARITY:
+                                    displayMovieListings(movieListingsViewModel.getPopularMovies().getValue());
+                                    break;
+                                case SORT_BY_TOP_RATED:
+                                    displayMovieListings(movieListingsViewModel.getTopRatedMovies().getValue());
+                                default:
+                                    displayMovieListings(movieListingsViewModel.getFavouriteMovies().getValue());
                             }
                             dialogInterface.dismiss();
                         }
@@ -161,10 +184,9 @@ public class MainActivity extends AppCompatActivity implements
         outState.putInt("sortingIndex", sortingIndex);
     }
 
-    private void displayMovieListings() {
-        movieAdapter.setMovieResults(movieListingsViewModel.getMovieListings());
+    private void displayMovieListings(List<MovieListing> movies) {
+        movieAdapter.setMovieResults(movies);
         heading.setText(getString(R.string.top_20,getResources().getString(movieListingsViewModel.getHeading())));
-        showMovies();
     }
 
     private void showMovies() {
