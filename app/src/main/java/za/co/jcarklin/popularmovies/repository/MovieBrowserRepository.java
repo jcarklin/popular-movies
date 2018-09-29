@@ -10,12 +10,16 @@ import android.net.NetworkInfo;
 import java.util.List;
 
 import za.co.jcarklin.popularmovies.R;
+import za.co.jcarklin.popularmovies.repository.api.AsyncTasksResponseHandler;
+import za.co.jcarklin.popularmovies.repository.api.FetchMovieDetailsAsyncTask;
 import za.co.jcarklin.popularmovies.repository.api.FetchMovieListingsAsyncTask;
-import za.co.jcarklin.popularmovies.repository.api.FetchMoviesResponseHandler;
+import za.co.jcarklin.popularmovies.repository.api.FetchMovieVideosAsyncTask;
 import za.co.jcarklin.popularmovies.repository.db.MovieBrowserDatabase;
 import za.co.jcarklin.popularmovies.repository.db.MovieDao;
 import za.co.jcarklin.popularmovies.repository.model.FetchStatus;
+import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
 import static za.co.jcarklin.popularmovies.Constants.SORT_BY_POPULARITY;
 import static za.co.jcarklin.popularmovies.Constants.SORT_BY_TOP_RATED;
@@ -23,25 +27,33 @@ import static za.co.jcarklin.popularmovies.Constants.STATUS_FAILED;
 import static za.co.jcarklin.popularmovies.Constants.STATUS_PROCESSING;
 import static za.co.jcarklin.popularmovies.Constants.STATUS_SUCCESS;
 
-public class MovieBrowserRepository implements FetchMoviesResponseHandler{
+public class MovieBrowserRepository implements AsyncTasksResponseHandler {
 
     private static final String TAG = MovieBrowserRepository.class.getSimpleName();
 
     private static MovieBrowserRepository repository;
+    private MovieDao movieDao;
 
+    //Movie Listings
     private final LiveData<List<MovieListing>> favouriteMovies;
     private final MutableLiveData<List<MovieListing>> popularMovies;
     private final MutableLiveData<List<MovieListing>> topRatedMovies;
     private final MutableLiveData<FetchStatus> status;
+    private final MutableLiveData<Boolean> isFavourite;
 
-    private MovieDao movieDao;
+    //Movie Details
+    private final MutableLiveData<MovieDetails> movieDetailsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<MovieTrailer>> movieTrailersLiveData = new MutableLiveData<>();
+
     private  ConnectivityManager connectivityManager;
 
     private MovieBrowserRepository(Application application) {
-        favouriteMovies = MovieBrowserDatabase.getInstance(application).movieDao().fetchFavouriteMovies();
+        movieDao = MovieBrowserDatabase.getInstance(application).movieDao();
+        favouriteMovies = movieDao.fetchFavouriteMovies();
         popularMovies = new MutableLiveData<>();
         topRatedMovies = new MutableLiveData<>();
         status = new MutableLiveData<>();
+        isFavourite = new MutableLiveData<>();
         connectivityManager = (ConnectivityManager)application.getSystemService(Context.CONNECTIVITY_SERVICE);
         refreshPopularMovieData();
     }
@@ -60,6 +72,18 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
 
     public LiveData<FetchStatus> getFetchStatus() {
         return status;
+    }
+
+    public LiveData<Boolean> getFavouriteLiveData() {
+        return isFavourite;
+    }
+
+    public LiveData<MovieDetails> getMovieDetailsLiveData() {
+        return movieDetailsLiveData;
+    }
+
+    public LiveData<List<MovieTrailer>> getMovieTrailersLiveData() {
+        return movieTrailersLiveData;
     }
 
     public void refreshPopularMovieData() {
@@ -83,6 +107,17 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
         return repository;
     }
 
+    private boolean checkNetworkAvailability() {
+        //Check if network is available
+        NetworkInfo networkInfo = connectivityManager==null ? null : connectivityManager.getActiveNetworkInfo();
+        boolean available = true;
+        if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+            status.setValue(new FetchStatus(STATUS_FAILED,R.string.network_unavailable));
+            available = false;
+        }
+        return available;
+    }
+
     @Override
     public void setMovies(List<MovieListing> movies, int sortBy) {
         if (movies != null) {
@@ -98,18 +133,60 @@ public class MovieBrowserRepository implements FetchMoviesResponseHandler{
         } else {
             status.setValue(new FetchStatus(STATUS_FAILED,R.string.network_unavailable));
         }
-
-
     }
 
-    private boolean checkNetworkAvailability() {
-        //Check if network is available
-        NetworkInfo networkInfo = connectivityManager==null ? null : connectivityManager.getActiveNetworkInfo();
-        boolean available = true;
-        if (networkInfo == null || !networkInfo.isConnectedOrConnecting()) {
+    @Override
+    public void setMovieDetailsLiveData(final MovieDetails movie) {
+        if (movie != null) {
+            refreshMovieTrailers(movie.getId());
+            MovieBrowserExecutor.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    int count = movieDao.getMovieCountByTmdbId(movie.getId());
+                    isFavourite.postValue(count>0);
+                    status.postValue(new FetchStatus(STATUS_SUCCESS,null));
+                    movieDetailsLiveData.postValue(movie);
+                }
+            });
+
+        }else {
             status.setValue(new FetchStatus(STATUS_FAILED,R.string.network_unavailable));
-            available = false;
         }
-        return available;
     }
+
+    @Override
+    public void setMovieTrailers(List<MovieTrailer> movieTrailers) {
+        if (movieTrailers != null) {
+            movieTrailersLiveData.setValue(movieTrailers);
+        }
+    }
+
+    public void refreshMovieDetails(Integer id) {
+        if (checkNetworkAvailability()) {
+            status.setValue(new FetchStatus(STATUS_PROCESSING, null));
+            new FetchMovieDetailsAsyncTask(this).execute(id);
+        }
+    }
+
+    public void refreshMovieTrailers(Integer id) {
+        new FetchMovieVideosAsyncTask(this).execute(id);
+    }
+
+
+    public void updateFavourite(final MovieListing movieListing, final boolean makeFavourite) {
+        //save to db
+        MovieBrowserExecutor.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (makeFavourite) {
+                    isFavourite.postValue(movieDao.addMovieToFavourites(movieListing)!=null);
+                } else {
+                    isFavourite.postValue(movieDao.removeMovieFromFavourites(movieListing)!=1);
+                }
+                movieDetailsLiveData.getValue().setFavourite((makeFavourite));
+            }
+        });
+    }
+
+
 }

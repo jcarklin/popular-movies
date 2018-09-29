@@ -62,12 +62,15 @@ public class MovieListingsViewModel extends AndroidViewModel {
     public int getHeading(int sortingIndex) {
         switch (sortingIndex) {
             case SORT_BY_POPULARITY:
-                return R.string.popularity;
+                return R.string.popular_movies;
             case SORT_BY_TOP_RATED:
-                return R.string.rating;
+                return R.string.top_rated_movies;
             default:
                 return R.string.favourite_movies;
         }
     }
 
+    public void setSelectedMovie(Integer id) {
+        movieBrowserRepository.refreshMovieDetails(id);
+    }
 }

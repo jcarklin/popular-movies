@@ -3,9 +3,11 @@
     <string name="sort">Sort</string>
     <string name="about">About</string>
     <string name="sort_by">Sorting: </string>
-    <string name="top_20">Top 20 movies by %1$s </string>
+    <!--<string name="top_20">Top 20 movies by %1$s </string>-->
     <string name="popularity">Popularity: </string>
     <string name="rating">Rating: </string>
+    <string name="popular_movies">Popular Movies</string>
+    <string name="top_rated_movies">Top Rated Movies</string>
     <string name="favourite_movies">Favourite Movies</string>
     <string name="released_label">Released: </string>
     <string name="the_movie_poster">The poster for the movie</string>
@@ -27,6 +29,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="number_of_cols_in_landscape_is">Number of movies in landscape is:</string>
     <string name="title_activity_refresh">Refresh</string>
+    <string name="the_movie_trailer_poster">The image for the movie trailer</string>
+    <string name="choose_app_to_view_video">Select an app to watch the videos</string>
 
 
 </resources>

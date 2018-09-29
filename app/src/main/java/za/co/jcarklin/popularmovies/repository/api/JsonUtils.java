@@ -9,6 +9,7 @@ import java.util.List;
 
 import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
 public class JsonUtils {
 
@@ -89,5 +90,43 @@ public class JsonUtils {
             e.printStackTrace();
         }
         return movie;
+    }
+
+    /*
+    "id": "5a78b3390e0a26598e017d21",
+      "iso_639_1": "en",
+      "iso_3166_1": "US",
+      "key": "dNW0B0HsvVs",
+      "name": "Official Teaser",
+      "site": "YouTube",
+      "size": 1080,
+      "type": "Teaser"
+     */
+    //dNW0B0HsvVs
+    public List<MovieTrailer> processMovieTrailers(String jsonResponse) {
+        List<MovieTrailer> movieTrailers = null;
+        try {
+            JSONObject root = new JSONObject(jsonResponse);
+            JSONArray results = root.optJSONArray("results");
+
+            if (results != null) {
+                JSONObject aResult;
+                MovieTrailer movieTrailer;
+                movieTrailers = new ArrayList<>(results.length());
+                for (int i = 0; i<results.length();i++) {
+                    aResult = results.getJSONObject(i);
+                    movieTrailer = new MovieTrailer();
+                    if (aResult.getString("site").equals("YouTube")) {
+                        movieTrailer.setId(aResult.optString("id", ""));
+                        movieTrailer.setKey(aResult.optString("key", ""));
+                        movieTrailer.setName(aResult.optString("name", ""));
+                        movieTrailers.add(movieTrailer);
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return movieTrailers;
     }
 }

@@ -13,6 +13,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/ll_movieDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -148,9 +149,6 @@
                             android:visibility="visible"
                             android:focusable="true" />
                     </FrameLayout>
-
-
-
                 </GridLayout>
             </LinearLayout>
 
@@ -159,13 +157,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/padding_details"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_trailers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical|center"
+                android:fadeScrollbars="false"
+                android:scrollbars="horizontal">
+            </android.support.v7.widget.RecyclerView>
+
         </LinearLayout>
     </ScrollView>
 
     <TextView
+        android:id="@+id/error_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
-    <!--TODO addProgressBar-->
-    <!--TODO addErrorMessage-->
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_red_light"
+        />
+    <ProgressBar
+        android:id="@+id/pb_load_movies"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:visibility="gone">
+    </ProgressBar>
 </FrameLayout>

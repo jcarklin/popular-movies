@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -42,8 +43,6 @@ public class MainActivity extends AppCompatActivity implements
     private MovieAdapter movieAdapter = null;
     @BindView(R.id.rv_movies)
     RecyclerView moviesRecyclerView;
-    @BindView(R.id.tv_heading)
-    TextView heading;
     @BindView(R.id.pb_load_movies)
     ProgressBar pbLoadMovies;
     @BindView(R.id.error_message)
@@ -189,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClick(MovieListing selectedMovie) {
         Intent movieDetailsIntent = new Intent(this, MovieDetailsActivity.class);
-        movieDetailsIntent.putExtra(MovieDetailsActivity.INTENT_EXTRA_SELECTED_MOVIE, selectedMovie.getId());
+        movieListingsViewModel.setSelectedMovie(selectedMovie.getId());
         startActivity(movieDetailsIntent);
     }
 
@@ -200,13 +199,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void displayMovieListings(List<MovieListing> movies) {
-        if (sortingIndex == SORT_BY_FAVOURITES) {
-            heading.setText(getString(R.string.favourite_movies));
-        } else {
-            heading.setText(getString(R.string.top_20, getResources().getString(movieListingsViewModel.getHeading(sortingIndex))));
+        ActionBar actionBar = this.getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(movieListingsViewModel.getHeading(sortingIndex));
         }
         if (sortingIndex == SORT_BY_FAVOURITES && movies.isEmpty()) {
-            //TODO
+            //TODO explain how to set a movie as favourite
             showEmptyFavourites();
             errorMessage.setText("No Favourites");
             showError();
@@ -218,28 +216,24 @@ public class MainActivity extends AppCompatActivity implements
 
     private void showMovies() {
         moviesRecyclerView.setVisibility(View.VISIBLE);
-        heading.setVisibility(View.VISIBLE);
         pbLoadMovies.setVisibility(View.GONE);
         errorMessage.setVisibility(View.GONE);
     }
 
     private void showProgressBar() {
         moviesRecyclerView.setVisibility(View.INVISIBLE);
-        heading.setVisibility(View.INVISIBLE);
         pbLoadMovies.setVisibility(View.VISIBLE);
         errorMessage.setVisibility(View.GONE);
     }
 
     private void showError() {
         moviesRecyclerView.setVisibility(View.INVISIBLE);
-        heading.setVisibility(View.INVISIBLE);
         pbLoadMovies.setVisibility(View.GONE);
         errorMessage.setVisibility(View.VISIBLE);
     }
 
     private void showEmptyFavourites() {
         moviesRecyclerView.setVisibility(View.INVISIBLE);
-        heading.setVisibility(View.INVISIBLE);
         pbLoadMovies.setVisibility(View.GONE);
         errorMessage.setVisibility(View.INVISIBLE);
     }

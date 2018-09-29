@@ -13,10 +13,10 @@ import static za.co.jcarklin.popularmovies.Constants.TOP_RATED;
 
 public class FetchMovieListingsAsyncTask extends AsyncTask<Integer, Void, List<MovieListing>> {
 
-    FetchMoviesResponseHandler fetchMoviesResponseHandler;
+    AsyncTasksResponseHandler fetchMoviesResponseHandler;
     int sortBy;
 
-    public FetchMovieListingsAsyncTask(FetchMoviesResponseHandler fetchMoviesResponseHandler) {
+    public FetchMovieListingsAsyncTask(AsyncTasksResponseHandler fetchMoviesResponseHandler) {
         this.fetchMoviesResponseHandler = fetchMoviesResponseHandler;
     }
 
@@ -28,9 +28,7 @@ public class FetchMovieListingsAsyncTask extends AsyncTask<Integer, Void, List<M
     @Override
     protected List<MovieListing> doInBackground(Integer... params) {
         sortBy = params[0];
-        Integer message = null;
         List<MovieListing> movieListings = null;
-        int status;
 
         try {
             URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(sortBy == SORT_BY_POPULARITY?POPULARITY:TOP_RATED);

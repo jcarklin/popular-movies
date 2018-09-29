@@ -27,11 +27,18 @@ public final class NetworkUtils {
     }
 
     public URL buildMovieUrl(String path) { //path = sort parameter or id
-        Uri uri = Uri.parse(BASE_MOVIEDB_URL).buildUpon()
+        return buildMovieUrl(path, null);
+    }
+
+    public URL buildMovieUrl(String path, String extraParameter) { //path = sort parameter or id
+        Uri.Builder builder = Uri.parse(BASE_MOVIEDB_URL).buildUpon()
                 .appendPath(MOVIEDB_MOVIE)
-                .appendPath(path)
-                .appendQueryParameter("api_key", BuildConfig.TMDB_API_TOKEN)
-                .build();
+                .appendPath(path);
+        if (extraParameter != null) {
+            builder.appendPath(extraParameter);
+        }
+        builder.appendQueryParameter("api_key", BuildConfig.TMDB_API_TOKEN);
+        Uri uri = builder.build();
 
         URL url = null;
         try {

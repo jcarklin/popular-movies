@@ -14,6 +14,12 @@ public final class Constants {
     public static final String MOVIEDB_MOVIE = "movie";
     public static final String POPULARITY = "popular";
     public static final String TOP_RATED = "top_rated";
+    public static final String VIDEOS = "videos";
+    public static final String REVIEWS = "reviews";
+
+    public static final String BASE_YOUTUBE_VIDEO_URL = "https://youtu.be/";
+    public static final String BASE_YOUTUBE_IMAGE_URL = "https://img.youtube.com/vi/";
+
 
 
 
