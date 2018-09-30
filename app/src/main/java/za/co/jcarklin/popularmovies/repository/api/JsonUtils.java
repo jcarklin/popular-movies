@@ -9,6 +9,7 @@ import java.util.List;
 
 import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
 public class JsonUtils {
@@ -128,5 +129,32 @@ public class JsonUtils {
             e.printStackTrace();
         }
         return movieTrailers;
+    }
+
+    public List<MovieReview> processMovieReviews(String jsonResponse) {
+        List<MovieReview> movieReviews = null;
+        try {
+            JSONObject root = new JSONObject(jsonResponse);
+            JSONArray results = root.optJSONArray("results");
+
+            if (results != null) {
+                JSONObject aResult;
+                MovieReview movieReview;
+                movieReviews = new ArrayList<>(results.length());
+                for (int i = 0; i<results.length();i++) {
+                    aResult = results.getJSONObject(i);
+                    movieReview = new MovieReview();
+                    movieReview.setId(aResult.optString("id", ""));
+                    movieReview.setAuthor(aResult.optString("author", ""));
+                    movieReview.setContent(aResult.optString("content", ""));
+                    movieReview.setUrl(aResult.optString("url", ""));
+                    movieReviews.add(movieReview);
+
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return movieReviews;
     }
 }

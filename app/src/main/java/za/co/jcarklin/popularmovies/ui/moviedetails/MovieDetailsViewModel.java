@@ -11,6 +11,7 @@ import za.co.jcarklin.popularmovies.repository.MovieBrowserRepository;
 import za.co.jcarklin.popularmovies.repository.model.FetchStatus;
 import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
 public class MovieDetailsViewModel extends AndroidViewModel {
@@ -18,6 +19,8 @@ public class MovieDetailsViewModel extends AndroidViewModel {
     private final MovieBrowserRepository movieBrowserRepository;
     private LiveData<MovieDetails> movieDetailsLiveData;
     private LiveData<List<MovieTrailer>> movieTrailersLiveData;
+    private LiveData<List<MovieReview>> movieReviewsLiveData;
+
     private LiveData<FetchStatus> fetchStatus;
     private LiveData<Boolean> isFavourite;
 
@@ -26,6 +29,7 @@ public class MovieDetailsViewModel extends AndroidViewModel {
         movieBrowserRepository = MovieBrowserRepository.getInstance(application);
         movieDetailsLiveData = movieBrowserRepository.getMovieDetailsLiveData();
         movieTrailersLiveData = movieBrowserRepository.getMovieTrailersLiveData();
+        movieReviewsLiveData = movieBrowserRepository.getMovieReviewsLiveData();
         isFavourite = movieBrowserRepository.getFavouriteLiveData();
         fetchStatus = movieBrowserRepository.getFetchStatus();
     }
@@ -38,6 +42,9 @@ public class MovieDetailsViewModel extends AndroidViewModel {
         return movieTrailersLiveData;
     }
 
+    public LiveData<List<MovieReview>> getMovieReviewsLiveData() {
+        return movieReviewsLiveData;
+    }
     public LiveData<FetchStatus> getFetchStatus() {
         return fetchStatus;
     }
@@ -48,5 +55,9 @@ public class MovieDetailsViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> getIsFavouriteLiveData() {
         return isFavourite;
+    }
+
+    public List<MovieReview> getFirstFiveReviews() {
+        return getMovieReviewsLiveData().getValue().subList(0,5);
     }
 }

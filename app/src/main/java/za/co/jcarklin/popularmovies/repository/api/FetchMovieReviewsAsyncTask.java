@@ -3,18 +3,18 @@ package za.co.jcarklin.popularmovies.repository.api;
 import android.os.AsyncTask;
 
 import java.net.URL;
+import java.util.List;
 
-import za.co.jcarklin.popularmovies.repository.db.MovieDao;
-import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
+import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 
-public class FetchMovieReviewsAsyncTask extends AsyncTask<Integer, Void, MovieDetails> {
+import static za.co.jcarklin.popularmovies.Constants.REVIEWS;
 
-    private FetchMovieDetailsResponseHandler fetchMovieResponseHandler;
-    private MovieDao movieDao;
+public class FetchMovieReviewsAsyncTask extends AsyncTask<Integer, Void, List<MovieReview>> {
 
-    public FetchMovieReviewsAsyncTask(FetchMovieDetailsResponseHandler fetchMovieResponseHandler, MovieDao movieDao) {
-        this.fetchMovieResponseHandler = fetchMovieResponseHandler;
-        this.movieDao = movieDao;
+    private AsyncTasksResponseHandler responseHandler;
+
+    public FetchMovieReviewsAsyncTask(AsyncTasksResponseHandler fetchResponseHandler) {
+        this.responseHandler = fetchResponseHandler;
     }
 
     @Override
@@ -23,15 +23,16 @@ public class FetchMovieReviewsAsyncTask extends AsyncTask<Integer, Void, MovieDe
     }
 
     @Override
-    protected MovieDetails doInBackground(Integer... params) {
+    protected List<MovieReview> doInBackground(Integer... params) {
         int movieId = params[0];
         try {
-            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(String.valueOf(movieId));
+            String path = String.valueOf(movieId);
+            URL movieUrl = NetworkUtils.getInstance().buildMovieUrl(path, REVIEWS);
             if (movieUrl==null) {
                 return null;
             }
             String jsonResponse = NetworkUtils.getInstance().getResponse(movieUrl);
-            return JsonUtils.getInstance().processMovieDetails(jsonResponse);
+            return JsonUtils.getInstance().processMovieReviews(jsonResponse);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -39,11 +40,7 @@ public class FetchMovieReviewsAsyncTask extends AsyncTask<Integer, Void, MovieDe
     }
 
     @Override
-    protected void onPostExecute(MovieDetails movie) {
-        fetchMovieResponseHandler.setMovie(movie);
-    }
-
-    public interface FetchMovieDetailsResponseHandler {
-        void setMovie(MovieDetails movie);
+    protected void onPostExecute(List<MovieReview> movieReviews) {
+        responseHandler.setMovieReviews(movieReviews);
     }
 }

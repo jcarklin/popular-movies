@@ -14,26 +14,30 @@ public class MovieListing implements Parcelable {
     private Integer id;
     @ColumnInfo(name = "poster_path")
     private String posterPath;
+    private String title;
 
     @Ignore
     public MovieListing() {
 
     }
 
-    public MovieListing(int id, String posterPath) {
+    public MovieListing(int id, String posterPath, String title) {
         this.id = id;
         this.posterPath = posterPath;
+        this.title = title;
     }
 
     private MovieListing(Parcel in) {
         this.id = in.readInt();
         this.posterPath = in.readString();
+        this.title = in.readString();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
         dest.writeString(posterPath);
+        dest.writeString(title);
     }
 
     public Integer getId() {
@@ -50,6 +54,14 @@ public class MovieListing implements Parcelable {
 
     public void setPosterPath(String posterPath) {
         this.posterPath = posterPath;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     @Override

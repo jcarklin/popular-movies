@@ -23,7 +23,7 @@ public class FetchMovieVideosAsyncTask extends AsyncTask<Integer, Void, List<Mov
     }
 
     @Override
-    protected List doInBackground(Integer... params) {
+    protected List<MovieTrailer> doInBackground(Integer... params) {
         int movieId = params[0];
         try {
             String path = String.valueOf(movieId);

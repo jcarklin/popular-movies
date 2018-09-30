@@ -30,6 +30,7 @@ import za.co.jcarklin.popularmovies.R;
 import za.co.jcarklin.popularmovies.repository.model.FetchStatus;
 import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 import za.co.jcarklin.popularmovies.ui.movielistings.MovieAdapter;
 
@@ -45,6 +46,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
 
     private MovieDetails selectedMovie;
     private MovieTrailersAdapter movieTrailersAdapter;
+    private MovieReviewsAdapter movieReviewsAdapter;
 
     @BindView(R.id.iv_movie_poster)
     ImageView moviePoster;
@@ -74,6 +76,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     TextView errorMessage;
     @BindView(R.id.rv_trailers)
     RecyclerView trailersRecyclerView;
+    @BindView(R.id.rv_reviews)
+    RecyclerView reviewsRecyclerView;
 
     private MovieDetailsViewModel movieDetailsViewModel;
 
@@ -135,6 +139,17 @@ public class MovieDetailsActivity extends AppCompatActivity implements
                     movieTrailersAdapter.setMovieTrailerResults(movieTrailers);
                 } else {
                     trailersRecyclerView.setVisibility(View.GONE);
+                }
+            }
+        });
+        movieDetailsViewModel.getMovieReviewsLiveData().observe(this, new Observer<List<MovieReview>>() {
+            @Override
+            public void onChanged(@Nullable List<MovieReview> movieReviews) {
+                if (movieReviews != null && !movieReviews.isEmpty()) {
+                    reviewsRecyclerView.setVisibility(View.VISIBLE);
+                    movieReviewsAdapter.setMovieReviewResults(movieDetailsViewModel.getFirstFiveReviews());
+                } else {
+                    reviewsRecyclerView.setVisibility(View.GONE);
                 }
             }
         });
@@ -200,7 +215,8 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     }
 
     private void makeFavourite(boolean favourite) {
-        MovieListing movieListing = new MovieListing(selectedMovie.getId(), selectedMovie.getPosterPath());
+        MovieListing movieListing = new MovieListing(selectedMovie.getId(),
+                selectedMovie.getPosterPath(), selectedMovie.getTitle());
         movieDetailsViewModel.updateMovieFavourite(movieListing, favourite);
     }
 

@@ -19,6 +19,7 @@ import za.co.jcarklin.popularmovies.repository.db.MovieDao;
 import za.co.jcarklin.popularmovies.repository.model.FetchStatus;
 import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieListing;
+import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
 import static za.co.jcarklin.popularmovies.Constants.SORT_BY_POPULARITY;
@@ -44,6 +45,7 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
     //Movie Details
     private final MutableLiveData<MovieDetails> movieDetailsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<MovieTrailer>> movieTrailersLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<MovieReview>> movieReviewsLiveData = new MutableLiveData<>();
 
     private  ConnectivityManager connectivityManager;
 
@@ -86,6 +88,10 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
         return movieTrailersLiveData;
     }
 
+    public LiveData<List<MovieReview>> getMovieReviewsLiveData() {
+        return movieReviewsLiveData;
+    }
+
     public void refreshPopularMovieData() {
         if (checkNetworkAvailability()) {
             status.setValue(new FetchStatus(STATUS_PROCESSING, null));
@@ -98,13 +104,6 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
             status.setValue(new FetchStatus(STATUS_PROCESSING, null));
             new FetchMovieListingsAsyncTask(this).execute(SORT_BY_TOP_RATED);
         }
-    }
-
-    public static MovieBrowserRepository getInstance(Application application) {
-        if (repository == null) {
-            repository = new MovieBrowserRepository(application);
-        }
-        return repository;
     }
 
     private boolean checkNetworkAvailability() {
@@ -161,6 +160,13 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
         }
     }
 
+    @Override
+    public void setMovieReviews(List<MovieReview> movieReviews) {
+        if (movieReviews != null) {
+            movieReviewsLiveData.setValue(movieReviews);
+        }
+    }
+
     public void refreshMovieDetails(Integer id) {
         if (checkNetworkAvailability()) {
             status.setValue(new FetchStatus(STATUS_PROCESSING, null));
@@ -188,5 +194,12 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
         });
     }
 
+
+    public static MovieBrowserRepository getInstance(Application application) {
+        if (repository == null) {
+            repository = new MovieBrowserRepository(application);
+        }
+        return repository;
+    }
 
 }
