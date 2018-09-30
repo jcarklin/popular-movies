@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <!--<item-->
-        <!--android:id="@+id/action_settings"-->
-        <!--android:orderInCategory="1"-->
-        <!--app:showAsAction="never"-->
-        <!--android:title="@string/title_activity_settings"/>-->
+    <item
+        android:id="@+id/action_favourite"
+        android:orderInCategory="1"
+        app:showAsAction="always"
+        android:title="@string/title_activity_favourite"
+        android:icon="@drawable/ic_favorite_border_red_24dp"
+        />
 
     <item
         android:id="@+id/action_about"

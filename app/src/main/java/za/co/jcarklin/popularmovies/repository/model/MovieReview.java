@@ -13,6 +13,8 @@ public class MovieReview {
     private String content;
     private String url;
 
+    private boolean showingAbridged;
+
     public String getId() {
         return id;
     }
@@ -30,11 +32,25 @@ public class MovieReview {
     }
 
     public String getContent() {
+        showingAbridged = false;
         return content;
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getAbridgedContent() {
+        if (content.length() > 600) {
+            showingAbridged = true;
+            return (content.substring(0,600))+"...";
+        }
+        showingAbridged=false;
+        return content;
+    }
+
+    public boolean isShowingAbridged() {
+        return showingAbridged;
     }
 
     public String getUrl() {

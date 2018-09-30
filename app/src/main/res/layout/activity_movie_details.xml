@@ -52,111 +52,86 @@
                 android:progressTint="@color/ratingBar"
                 />
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical|center_horizontal"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@android:color/black">
 
                 <ImageView
-                    android:id="@+id/iv_movie_poster"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|center_vertical"
-                    android:layout_margin="2dp"
-                    app:srcCompat="@mipmap/ic_launcher"
-                    android:contentDescription="@string/the_movie_poster" />
-
-                <GridLayout
+                    android:src="@drawable/ic_event_available_24dp"
+                    android:padding="2dp"
+                    />
+                <TextView
+                    android:id="@+id/tv_released_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:layout_gravity="start|top"
-                    android:layout_marginRight="6dp"
-                    android:layout_marginLeft="6dp">
+                    android:textSize="18sp"
+                    android:paddingRight="12dp" />
 
-                    <TextView
-                        android:id="@+id/tv_released_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_row="0"
-                        android:padding="2dp"
-                        android:text="@string/released_label"
-                        android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tv_released_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_row="0"
-                        android:padding="2dp" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_star_border_24dp"
+                    android:padding="2dp"
+                    />
 
-                    <TextView
-                        android:id="@+id/tv_user_rating_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_row="1"
-                        android:padding="2dp"
-                        android:text="@string/user_rating"
-                        android:textStyle="bold" />
-
-                    <TextView
+                <TextView
                         android:id="@+id/tv_user_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_row="1"
-                        android:padding="2dp" />
+                        android:textSize="18sp"
+                        android:paddingRight="24dp"/>
 
-                    <TextView
-                        android:id="@+id/tv_popularity_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_column="0"
-                        android:layout_row="2"
-                        android:padding="2dp"
-                        android:text="@string/popularity"
-                        android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_favorite_border_24dp"
+                    android:padding="2dp"
+                    />
 
                     <TextView
                         android:id="@+id/tv_popularity_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_column="1"
-                        android:layout_row="2"
-                        android:padding="2dp" />
+                        android:padding="2dp"
+                        android:textSize="18sp"/>
 
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-                        <ImageView
-                            android:id="@+id/iv_favourite_on"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/ic_favorite_red_24dp"
-                            android:clickable="true"
-                            android:visibility="invisible"
-                            android:focusable="true" />
-                        <ImageView
-                            android:id="@+id/iv_favourite_off"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/ic_favorite_border_red_24dp"
-                            android:clickable="true"
-                            android:visibility="visible"
-                            android:focusable="true" />
-                    </FrameLayout>
-                </GridLayout>
             </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv_movie_poster"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_margin="16dp"
+                app:srcCompat="@mipmap/ic_launcher"
+                android:contentDescription="@string/the_movie_poster" />
 
             <TextView
                 android:id="@+id/tv_overview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding_details"/>
+                android:layout_margin="@dimen/padding_details"
+                android:paddingBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_trailers_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:paddingBottom="@dimen/padding_details_bottom"
+                android:paddingTop="@dimen/padding_details"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="#80CBC4"
+                android:textStyle="bold"
+                android:text="@string/trailers_heading"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_trailers"
@@ -165,8 +140,24 @@
                 android:layout_gravity="center_horizontal|center_vertical|center"
                 android:fadeScrollbars="false"
                 android:scrollbars="horizontal"
-                android:paddingHorizontal="8dp">
+                android:paddingHorizontal="8dp"
+                android:layout_marginVertical="16dp"
+                >
             </android.support.v7.widget.RecyclerView>
+
+            <TextView
+                android:id="@+id/tv_reviews_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:paddingBottom="@dimen/padding_details_bottom"
+                android:paddingTop="@dimen/padding_details"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="#80CBC4"
+                android:textStyle="bold"
+                android:drawableBottom="@color/ratingBar"
+                android:text="@string/reviews_heading"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_reviews"
@@ -174,8 +165,24 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|center_vertical|center"
                 android:fadeScrollbars="false"
-                android:scrollbars="horizontal">
+                android:scrollbars="horizontal"
+                android:layout_marginBottom="16dp">
             </android.support.v7.widget.RecyclerView>
+
+            <Button
+                android:id="@+id/btn_show_all_reviews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#80CBC4"
+                android:text="Show All Reviews"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                android:textColor="@android:color/background_dark"
+                android:padding="8dp"
+                android:layout_gravity="center_horizontal"
+                />
+            />
+
         </LinearLayout>
     </ScrollView>
 

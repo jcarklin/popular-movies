@@ -13,6 +13,7 @@ import za.co.jcarklin.popularmovies.R;
 import za.co.jcarklin.popularmovies.repository.api.AsyncTasksResponseHandler;
 import za.co.jcarklin.popularmovies.repository.api.FetchMovieDetailsAsyncTask;
 import za.co.jcarklin.popularmovies.repository.api.FetchMovieListingsAsyncTask;
+import za.co.jcarklin.popularmovies.repository.api.FetchMovieReviewsAsyncTask;
 import za.co.jcarklin.popularmovies.repository.api.FetchMovieVideosAsyncTask;
 import za.co.jcarklin.popularmovies.repository.db.MovieBrowserDatabase;
 import za.co.jcarklin.popularmovies.repository.db.MovieDao;
@@ -138,6 +139,7 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
     public void setMovieDetailsLiveData(final MovieDetails movie) {
         if (movie != null) {
             refreshMovieTrailers(movie.getId());
+            refreshMovieReviews(movie.getId());
             MovieBrowserExecutor.getInstance().diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -176,6 +178,10 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
 
     public void refreshMovieTrailers(Integer id) {
         new FetchMovieVideosAsyncTask(this).execute(id);
+    }
+
+    public void refreshMovieReviews(Integer id) {
+        new FetchMovieReviewsAsyncTask(this).execute(id);
     }
 
 

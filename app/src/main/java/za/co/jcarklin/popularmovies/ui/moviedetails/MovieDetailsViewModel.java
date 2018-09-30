@@ -7,10 +7,10 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
+import za.co.jcarklin.popularmovies.R;
 import za.co.jcarklin.popularmovies.repository.MovieBrowserRepository;
 import za.co.jcarklin.popularmovies.repository.model.FetchStatus;
 import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
-import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
@@ -49,8 +49,8 @@ public class MovieDetailsViewModel extends AndroidViewModel {
         return fetchStatus;
     }
 
-    public void updateMovieFavourite(MovieListing movieListing, boolean makeFavourite) {
-        movieBrowserRepository.updateFavourite(movieListing, makeFavourite);
+    public void toggleMovieFavourite() {
+        movieBrowserRepository.updateFavourite(movieDetailsLiveData.getValue().getMovieListing(), !isFavourite.getValue());
     }
 
     public LiveData<Boolean> getIsFavouriteLiveData() {
@@ -58,6 +58,14 @@ public class MovieDetailsViewModel extends AndroidViewModel {
     }
 
     public List<MovieReview> getFirstFiveReviews() {
-        return getMovieReviewsLiveData().getValue().subList(0,5);
+        List<MovieReview> reviews = movieReviewsLiveData.getValue();
+        if (reviews.size()>5) {
+            return getMovieReviewsLiveData().getValue().subList(0, 5);
+        }
+        return reviews;
+    }
+
+    public int getHeartIcon() {
+        return (isFavourite != null && isFavourite.getValue() != null && isFavourite.getValue())? R.drawable.ic_favorite_red_24dp:R.drawable.ic_favorite_border_red_24dp;
     }
 }

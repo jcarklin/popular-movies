@@ -218,6 +218,10 @@ public class MovieDetails implements Parcelable {
         this.voteCount = voteCount;
     }
 
+    public MovieListing getMovieListing() {
+        return new MovieListing(id,posterPath,title);
+    }
+
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(id);
         dest.writeValue(backdropPath);

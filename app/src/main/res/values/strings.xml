@@ -31,6 +31,10 @@
     <string name="title_activity_refresh">Refresh</string>
     <string name="the_movie_trailer_poster">The image for the movie trailer</string>
     <string name="choose_app_to_view_video">Select an app to watch the videos</string>
+    <string name="title_activity_favourite">Set as Favourite</string>
+    <string name="reviews_heading">Reviews</string>
+    <string name="trailers_heading"><![CDATA[Trailers & Teasers]]></string>
+    <string name="movie_details">Movie Details</string>
 
 
 </resources>

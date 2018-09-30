@@ -19,14 +19,14 @@ import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapter.MovieReviewsViewHolder> {
 
     private List<MovieReview> movieReviewResults = new ArrayList<>(20);
-    private final MovieReviewAdapterOnClickHandler movieAdapterOnClickHandler;
+//    private final MovieReviewAdapterOnClickHandler movieAdapterOnClickHandler;
 
-    public interface MovieReviewAdapterOnClickHandler {
-        void onClickReview(MovieReview selectedReview);
-    }
+//    public interface MovieReviewAdapterOnClickHandler {
+//        void onClickReview(MovieReview selectedReview);
+//    }
 
-    public MovieReviewsAdapter(MovieReviewAdapterOnClickHandler clickHandler) {
-        movieAdapterOnClickHandler = clickHandler;
+    public MovieReviewsAdapter() {//(MovieReviewAdapterOnClickHandler clickHandler) {
+//        movieAdapterOnClickHandler = clickHandler;
     }
 
     public void setMovieReviewResults(List<MovieReview> results) {
@@ -46,7 +46,9 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
     @Override
     public void onBindViewHolder(@NonNull MovieReviewsViewHolder holder, int position) {
         MovieReview movie = movieReviewResults.get(position);
-
+        holder.author.setText(movie.getAuthor());
+        holder.review.setText(movie.getAbridgedContent());
+        holder.setShowMoreVisibility(movie.isShowingAbridged()?View.VISIBLE:View.GONE);
     }
 
     @Override
@@ -61,6 +63,8 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
         TextView author;
         @BindView((R.id.tv_review))
         TextView review;
+        @BindView((R.id.tv_more_review))
+        TextView showMore;
 
         MovieReviewsViewHolder(View itemView) {
             super(itemView);
@@ -71,8 +75,18 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            //MovieTrailer selectedMovie = movieTrailerResults.get(adapterPosition);
-            //movieAdapterOnClickHandler.onClickTrailer(selectedMovie);
+            MovieReview selectedMovie = movieReviewResults.get(adapterPosition);
+            if (selectedMovie.isShowingAbridged()) {
+                review.setText(selectedMovie.getContent());
+                showMore.setText("Show Less");
+            } else {
+                review.setText(selectedMovie.getAbridgedContent());
+                showMore.setText("Show More");
+            }
+        }
+
+        public void setShowMoreVisibility(int visibility) {
+            showMore.setVisibility(visibility);
         }
     }
 }
