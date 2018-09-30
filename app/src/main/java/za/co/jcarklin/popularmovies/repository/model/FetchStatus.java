@@ -2,8 +2,8 @@ package za.co.jcarklin.popularmovies.repository.model;
 
 public class FetchStatus {
 
-    private int movieStatus;
-    private Integer statusMessageRvalue;
+    private final int movieStatus;
+    private final Integer statusMessageRvalue;
 
     public FetchStatus(int status, Integer messageRvalue) {
         movieStatus = status;
@@ -14,15 +14,7 @@ public class FetchStatus {
         return movieStatus;
     }
 
-    public void setMovieStatus(int movieStatus) {
-        this.movieStatus = movieStatus;
-    }
-
     public Integer getStatusMessage() {
         return statusMessageRvalue;
-    }
-
-    public void setStatusMessage(Integer statusMessage) {
-        this.statusMessageRvalue = statusMessage;
     }
 }

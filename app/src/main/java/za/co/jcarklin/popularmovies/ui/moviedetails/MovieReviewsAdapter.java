@@ -78,14 +78,14 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsAdapte
             MovieReview selectedMovie = movieReviewResults.get(adapterPosition);
             if (selectedMovie.isShowingAbridged()) {
                 review.setText(selectedMovie.getContent());
-                showMore.setText("Show Less");
+                showMore.setText(R.string.show_less);
             } else {
                 review.setText(selectedMovie.getAbridgedContent());
-                showMore.setText("Show More");
+                showMore.setText(R.string.show_more);
             }
         }
 
-        public void setShowMoreVisibility(int visibility) {
+        void setShowMoreVisibility(int visibility) {
             showMore.setVisibility(visibility);
         }
     }

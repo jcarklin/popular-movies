@@ -11,15 +11,10 @@ import static za.co.jcarklin.popularmovies.Constants.REVIEWS;
 
 public class FetchMovieReviewsAsyncTask extends AsyncTask<Integer, Void, List<MovieReview>> {
 
-    private AsyncTasksResponseHandler responseHandler;
+    private final AsyncTasksResponseHandler responseHandler;
 
     public FetchMovieReviewsAsyncTask(AsyncTasksResponseHandler fetchResponseHandler) {
         this.responseHandler = fetchResponseHandler;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
     @Override

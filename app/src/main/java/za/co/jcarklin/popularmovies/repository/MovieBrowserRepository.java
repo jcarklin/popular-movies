@@ -34,7 +34,7 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
     private static final String TAG = MovieBrowserRepository.class.getSimpleName();
 
     private static MovieBrowserRepository repository;
-    private MovieDao movieDao;
+    private final MovieDao movieDao;
 
     //Movie Listings
     private final LiveData<List<MovieListing>> favouriteMovies;
@@ -48,7 +48,7 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
     private final MutableLiveData<List<MovieTrailer>> movieTrailersLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<MovieReview>> movieReviewsLiveData = new MutableLiveData<>();
 
-    private  ConnectivityManager connectivityManager;
+    private final ConnectivityManager connectivityManager;
 
     private MovieBrowserRepository(Application application) {
         movieDao = MovieBrowserDatabase.getInstance(application).movieDao();
@@ -176,11 +176,11 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
         }
     }
 
-    public void refreshMovieTrailers(Integer id) {
+    private void refreshMovieTrailers(Integer id) {
         new FetchMovieVideosAsyncTask(this).execute(id);
     }
 
-    public void refreshMovieReviews(Integer id) {
+    private void refreshMovieReviews(Integer id) {
         new FetchMovieReviewsAsyncTask(this).execute(id);
     }
 
@@ -195,7 +195,9 @@ public class MovieBrowserRepository implements AsyncTasksResponseHandler {
                 } else {
                     isFavourite.postValue(movieDao.removeMovieFromFavourites(movieListing)!=1);
                 }
-                movieDetailsLiveData.getValue().setFavourite((makeFavourite));
+                if (movieDetailsLiveData.getValue() != null) {
+                    movieDetailsLiveData.getValue().setFavourite((makeFavourite));
+                }
             }
         });
     }

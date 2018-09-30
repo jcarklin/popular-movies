@@ -7,14 +7,12 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/tv_about_nanodegree"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:text="@string/about_nanodegee" />
 
     <TextView
-        android:id="@+id/tv_about_moviedb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/about_tmdb"

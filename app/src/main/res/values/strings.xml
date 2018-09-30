@@ -4,30 +4,16 @@
     <string name="about">About</string>
     <string name="sort_by">Sorting: </string>
     <!--<string name="top_20">Top 20 movies by %1$s </string>-->
-    <string name="popularity">Popularity: </string>
-    <string name="rating">Rating: </string>
     <string name="popular_movies">Popular Movies</string>
     <string name="top_rated_movies">Top Rated Movies</string>
     <string name="favourite_movies">Favourite Movies</string>
-    <string name="released_label">Released: </string>
     <string name="the_movie_poster">The poster for the movie</string>
-    <string name="user_rating">User Rating: </string>
     <string name="network_unavailable">Network is currently unavailable</string>
     <string name="about_nanodegee">Movie Browser was created and submitted as an assignment for the The Android Developer Nanodegree program at Udacity</string>
     <string name="about_tmdb">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
     <string name="the_moviedb_logo">The MovieDb Logo</string>
-    <string name="title_activity_settings">Settings</string>
-    <string name="pref_num_cols_key">num_cols_key</string>
-    <string name="pref_num_col_label">Number of movie posters per row</string>
-    <string name="pref_num_col_default">2</string>
-    <string name="double_cols_for_landscape_label">Double number of Movies in Landscape mode?</string>
-    <string name="double_cols_for_landscape_key">double_cols_for_landscape</string>
-    <string name="double_cols_for_landscape_off">Off</string>
-    <string name="double_cols_for_landscape_on">On</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="number_of_cols_in_landscape_is">Number of movies in landscape is:</string>
     <string name="title_activity_refresh">Refresh</string>
     <string name="the_movie_trailer_poster">The image for the movie trailer</string>
     <string name="choose_app_to_view_video">Select an app to watch the videos</string>
@@ -35,6 +21,10 @@
     <string name="reviews_heading">Reviews</string>
     <string name="trailers_heading"><![CDATA[Trailers & Teasers]]></string>
     <string name="movie_details">Movie Details</string>
+    <string name="show_all_reviews">Show All Reviews</string>
+    <string name="author">Author:</string>
+    <string name="show_more">Show More</string>
+    <string name="show_less">Show Less</string>
 
 
 </resources>

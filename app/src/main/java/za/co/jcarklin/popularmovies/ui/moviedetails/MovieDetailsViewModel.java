@@ -14,15 +14,15 @@ import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 import za.co.jcarklin.popularmovies.repository.model.MovieReview;
 import za.co.jcarklin.popularmovies.repository.model.MovieTrailer;
 
-public class MovieDetailsViewModel extends AndroidViewModel {
+class MovieDetailsViewModel extends AndroidViewModel {
 
     private final MovieBrowserRepository movieBrowserRepository;
-    private LiveData<MovieDetails> movieDetailsLiveData;
-    private LiveData<List<MovieTrailer>> movieTrailersLiveData;
-    private LiveData<List<MovieReview>> movieReviewsLiveData;
+    private final LiveData<MovieDetails> movieDetailsLiveData;
+    private final LiveData<List<MovieTrailer>> movieTrailersLiveData;
+    private final LiveData<List<MovieReview>> movieReviewsLiveData;
 
-    private LiveData<FetchStatus> fetchStatus;
-    private LiveData<Boolean> isFavourite;
+    private final LiveData<FetchStatus> fetchStatus;
+    private final LiveData<Boolean> isFavourite;
 
     public MovieDetailsViewModel(@NonNull Application application) {
         super(application);

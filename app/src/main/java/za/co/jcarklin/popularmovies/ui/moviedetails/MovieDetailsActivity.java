@@ -117,7 +117,9 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         movieDetailsViewModel.getMovieDetailsLiveData().observe(this, new Observer<MovieDetails>() {
             @Override
             public void onChanged(@Nullable MovieDetails movieDetails) {
-                setMovieDetailsViews(movieDetails);
+                if (movieDetails != null) {
+                    setMovieDetailsViews(movieDetails);
+                }
             }
         });
         movieDetailsViewModel.getIsFavouriteLiveData().observe(this, new Observer<Boolean>() {
@@ -132,7 +134,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         movieDetailsViewModel.getFetchStatus().observe(this, new Observer<FetchStatus>() {
             @Override
             public void onChanged(@Nullable FetchStatus fetchStatus) {
-                if (fetchStatus.getMovieStatus() == STATUS_PROCESSING) {
+                if (fetchStatus == null || fetchStatus.getMovieStatus() == STATUS_PROCESSING) {
                     showProgressBar();
                 } else if (fetchStatus.getMovieStatus() == STATUS_FAILED) {
                     errorMessage.setText(fetchStatus.getStatusMessage());
@@ -173,11 +175,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements
                 }
             }
         });
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     @Override

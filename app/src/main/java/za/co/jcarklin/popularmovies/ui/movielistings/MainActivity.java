@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.error_message)
     TextView errorMessage;
 
-    MenuItem refresh;
+    private MenuItem refresh;
 
     private int spanCount = 2;
     private int sortingIndex = 0;
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onChanged(@Nullable List<MovieListing> movieListings) {
 
-                if (movieListings.isEmpty()) {
+                if (movieListings == null || movieListings.isEmpty()) {
                     movieListingsViewModel.refreshPopularMovies();
                 }
                 if (sortingIndex==SORT_BY_POPULARITY) {
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements
         movieListingsViewModel.getTopRatedMovies().observe(this, new Observer<List<MovieListing>>() {
             @Override
             public void onChanged(@Nullable List<MovieListing> movieListings) {
-                if (movieListings.isEmpty()) {
+                if (movieListings==null || movieListings.isEmpty()) {
                     movieListingsViewModel.refreshTopRatedMovies();
                 }
                 if (sortingIndex==SORT_BY_TOP_RATED) {
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements
         movieListingsViewModel.getFetchStatus().observe(this, new Observer<FetchStatus>() {
             @Override
             public void onChanged(@Nullable FetchStatus fetchStatus) {
-                if (fetchStatus.getMovieStatus() == STATUS_PROCESSING) {
+                if (fetchStatus==null || fetchStatus.getMovieStatus() == STATUS_PROCESSING) {
                     showProgressBar();
                 } else if (fetchStatus.getMovieStatus() == STATUS_FAILED) {
                     errorMessage.setText(fetchStatus.getStatusMessage());

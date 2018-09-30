@@ -94,7 +94,7 @@ public class MovieDetails implements Parcelable {
         this.homepage = homepage;
     }
 
-    public String getOriginalLanguage() {
+    private String getOriginalLanguage() {
         return originalLanguage;
     }
 

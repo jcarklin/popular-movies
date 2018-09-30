@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Author:"
+            android:text="@string/author"
             android:padding="2dp"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -36,7 +36,7 @@
         android:id="@+id/tv_more_review"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Show More"
+        android:text="@string/show_more"
         android:textColor="#80CBC4"/>
 
 </LinearLayout>

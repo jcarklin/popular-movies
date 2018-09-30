@@ -27,7 +27,7 @@ public class MovieTrailer {
     }
 
     public void setIso6391(String iso6391) {
-        this.iso_639_1 = iso_639_1;
+        this.iso_639_1 = iso6391;
     }
 
     public String getIso31661() {

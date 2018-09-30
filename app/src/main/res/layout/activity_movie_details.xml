@@ -65,13 +65,14 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_event_available_24dp"
                     android:padding="2dp"
-                    />
+                    android:contentDescription="Calendar Icon" />
                 <TextView
                     android:id="@+id/tv_released_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="18sp"
-                    android:paddingRight="12dp" />
+                    android:paddingRight="12dp"
+                    android:paddingEnd="12dp" />
 
 
                 <ImageView
@@ -79,21 +80,22 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_star_border_24dp"
                     android:padding="2dp"
-                    />
+                    android:contentDescription="Rating Icon" />
 
                 <TextView
                         android:id="@+id/tv_user_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:paddingRight="24dp"/>
+                        android:paddingRight="24dp"
+                    android:paddingEnd="24dp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_favorite_border_24dp"
                     android:padding="2dp"
-                    />
+                    android:contentDescription="Popular Icon" />
 
                     <TextView
                         android:id="@+id/tv_popularity_rating"
@@ -174,13 +176,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#80CBC4"
-                android:text="Show All Reviews"
+                android:text="@string/show_all_reviews"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone"
                 android:textColor="@android:color/background_dark"
                 android:padding="8dp"
                 android:layout_gravity="center_horizontal"
-                />
             />
 
         </LinearLayout>

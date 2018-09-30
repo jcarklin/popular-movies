@@ -11,15 +11,10 @@ import static za.co.jcarklin.popularmovies.Constants.VIDEOS;
 
 public class FetchMovieVideosAsyncTask extends AsyncTask<Integer, Void, List<MovieTrailer>> {
 
-    private AsyncTasksResponseHandler responseHandler;
+    private final AsyncTasksResponseHandler responseHandler;
 
     public FetchMovieVideosAsyncTask(AsyncTasksResponseHandler fetchResponseHandler) {
         this.responseHandler = fetchResponseHandler;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
     @Override

@@ -13,16 +13,11 @@ import static za.co.jcarklin.popularmovies.Constants.TOP_RATED;
 
 public class FetchMovieListingsAsyncTask extends AsyncTask<Integer, Void, List<MovieListing>> {
 
-    AsyncTasksResponseHandler fetchMoviesResponseHandler;
-    int sortBy;
+    private final AsyncTasksResponseHandler fetchMoviesResponseHandler;
+    private int sortBy;
 
     public FetchMovieListingsAsyncTask(AsyncTasksResponseHandler fetchMoviesResponseHandler) {
         this.fetchMoviesResponseHandler = fetchMoviesResponseHandler;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
     @Override

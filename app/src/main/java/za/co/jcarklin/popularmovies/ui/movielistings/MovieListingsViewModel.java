@@ -15,14 +15,14 @@ import za.co.jcarklin.popularmovies.repository.model.MovieListing;
 import static za.co.jcarklin.popularmovies.Constants.SORT_BY_POPULARITY;
 import static za.co.jcarklin.popularmovies.Constants.SORT_BY_TOP_RATED;
 
-public class MovieListingsViewModel extends AndroidViewModel {
+class MovieListingsViewModel extends AndroidViewModel {
 
     private static final String TAG = MovieListingsViewModel.class.getSimpleName();
 
-    private LiveData<List<MovieListing>> favouriteMovies;
-    private LiveData<List<MovieListing>> popularMovies;
-    private LiveData<List<MovieListing>> topRatedMovies;
-    private LiveData<FetchStatus> fetchStatus;
+    private final LiveData<List<MovieListing>> favouriteMovies;
+    private final LiveData<List<MovieListing>> popularMovies;
+    private final LiveData<List<MovieListing>> topRatedMovies;
+    private final LiveData<FetchStatus> fetchStatus;
 
     private final MovieBrowserRepository movieBrowserRepository;
 

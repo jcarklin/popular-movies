@@ -8,15 +8,10 @@ import za.co.jcarklin.popularmovies.repository.model.MovieDetails;
 
 public class FetchMovieDetailsAsyncTask extends AsyncTask<Integer, Void, MovieDetails> {
 
-    private AsyncTasksResponseHandler fetchMovieResponseHandler;
+    private final AsyncTasksResponseHandler fetchMovieResponseHandler;
 
     public FetchMovieDetailsAsyncTask(AsyncTasksResponseHandler fetchMovieResponseHandler) {
         this.fetchMovieResponseHandler = fetchMovieResponseHandler;
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
     @Override
