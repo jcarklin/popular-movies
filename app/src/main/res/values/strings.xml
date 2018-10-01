@@ -25,6 +25,10 @@
     <string name="author">Author:</string>
     <string name="show_more">Show More</string>
     <string name="show_less">Show Less</string>
+    <string name="calendar_icon">Calendar Icon</string>
+    <string name="rating_icon">Rating Icon</string>
+    <string name="popular_icon">Popular Icon</string>
+    <string name="no_favourites">You have no favourites! Use the red heart icon when viewing movie details to add the movie to your favourites!</string>
 
 
 </resources>

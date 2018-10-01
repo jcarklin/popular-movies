@@ -13,5 +13,6 @@
         android:background="@android:color/black"
         android:scaleType="fitCenter"
         android:contentDescription= "@string/the_movie_trailer_poster"
-        android:paddingHorizontal="8dp"/>
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"/>
 </FrameLayout>

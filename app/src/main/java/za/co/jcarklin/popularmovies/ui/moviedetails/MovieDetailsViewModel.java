@@ -50,7 +50,9 @@ class MovieDetailsViewModel extends AndroidViewModel {
     }
 
     public void toggleMovieFavourite() {
-        movieBrowserRepository.updateFavourite(movieDetailsLiveData.getValue().getMovieListing(), !isFavourite.getValue());
+        if (movieDetailsLiveData.getValue() != null && isFavourite != null && isFavourite.getValue() != null) {
+            movieBrowserRepository.updateFavourite(movieDetailsLiveData.getValue().getMovieListing(), !isFavourite.getValue());
+        }
     }
 
     public LiveData<Boolean> getIsFavouriteLiveData() {
@@ -59,8 +61,8 @@ class MovieDetailsViewModel extends AndroidViewModel {
 
     public List<MovieReview> getFirstFiveReviews() {
         List<MovieReview> reviews = movieReviewsLiveData.getValue();
-        if (reviews.size()>5) {
-            return getMovieReviewsLiveData().getValue().subList(0, 5);
+        if (reviews != null && reviews.size()>5) {
+            return reviews.subList(0, 5);
         }
         return reviews;
     }

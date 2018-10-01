@@ -17,8 +17,6 @@ import static za.co.jcarklin.popularmovies.Constants.SORT_BY_TOP_RATED;
 
 class MovieListingsViewModel extends AndroidViewModel {
 
-    private static final String TAG = MovieListingsViewModel.class.getSimpleName();
-
     private final LiveData<List<MovieListing>> favouriteMovies;
     private final LiveData<List<MovieListing>> popularMovies;
     private final LiveData<List<MovieListing>> topRatedMovies;

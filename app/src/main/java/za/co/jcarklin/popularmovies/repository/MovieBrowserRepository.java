@@ -31,8 +31,6 @@ import static za.co.jcarklin.popularmovies.Constants.STATUS_SUCCESS;
 
 public class MovieBrowserRepository implements AsyncTasksResponseHandler {
 
-    private static final String TAG = MovieBrowserRepository.class.getSimpleName();
-
     private static MovieBrowserRepository repository;
     private final MovieDao movieDao;
 

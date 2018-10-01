@@ -11,7 +11,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -109,6 +108,12 @@ public class MovieDetailsActivity extends AppCompatActivity implements
             }
         });
 
+        trailersHeading.setVisibility(View.GONE);
+        trailersRecyclerView.setVisibility(View.GONE);
+        reviewsHeading.setVisibility(View.GONE);
+        reviewsRecyclerView.setVisibility(View.GONE);
+        showAllReviews.setVisibility(View.GONE);
+
         setupViewModel();
     }
 
@@ -172,6 +177,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
                 } else {
                     reviewsHeading.setVisibility(View.GONE);
                     reviewsRecyclerView.setVisibility(View.GONE);
+                    showAllReviews.setVisibility(View.GONE);
                 }
             }
         });
@@ -182,7 +188,6 @@ public class MovieDetailsActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.details, menu);
         favouriteMenuItem = menu.findItem(R.id.action_favourite);
         favouriteMenuItem.setIcon(movieDetailsViewModel.getHeartIcon());
-        favouriteMenuItem.setVisible(false);
         ActionBar actionBar = this.getSupportActionBar();
         if (actionBar != null) {
             actionBar.setTitle(R.string.movie_details);
@@ -195,8 +200,7 @@ public class MovieDetailsActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_about) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            LayoutInflater factory = LayoutInflater.from(this);
-            final View view = factory.inflate(R.layout.dialog_about, null);
+            final View view = View.inflate(this, R.layout.dialog_about, null);
             builder.setTitle(R.string.about)
                     .setView(view)
                     .setCancelable(true)

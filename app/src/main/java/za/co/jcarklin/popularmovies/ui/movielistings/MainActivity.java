@@ -14,10 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements
     ProgressBar pbLoadMovies;
     @BindView(R.id.error_message)
     TextView errorMessage;
+    @BindView(R.id.error_icon)
+    ImageView errorIcon;
 
     private MenuItem refresh;
 
@@ -173,8 +175,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 return true;
             case R.id.action_about:
-                LayoutInflater factory = LayoutInflater.from(this);
-                final View view = factory.inflate(R.layout.dialog_about,null);
+                final View view = View.inflate(this, R.layout.dialog_about, null);
                 builder.setTitle(R.string.about)
                     .setView(view)
                     .setCancelable(true)
@@ -205,9 +206,8 @@ public class MainActivity extends AppCompatActivity implements
         }
         if (sortingIndex == SORT_BY_FAVOURITES && movies.isEmpty()) {
             //TODO explain how to set a movie as favourite
+            errorMessage.setText(R.string.no_favourites);
             showEmptyFavourites();
-            errorMessage.setText("No Favourites");
-            showError();
         } else {
             showMovies();
             movieAdapter.setMovieResults(movies);
@@ -218,23 +218,29 @@ public class MainActivity extends AppCompatActivity implements
         moviesRecyclerView.setVisibility(View.VISIBLE);
         pbLoadMovies.setVisibility(View.GONE);
         errorMessage.setVisibility(View.GONE);
+        errorIcon.setVisibility(View.GONE);
     }
 
     private void showProgressBar() {
         moviesRecyclerView.setVisibility(View.INVISIBLE);
         pbLoadMovies.setVisibility(View.VISIBLE);
         errorMessage.setVisibility(View.GONE);
+        errorIcon.setVisibility(View.GONE);
     }
 
     private void showError() {
         moviesRecyclerView.setVisibility(View.INVISIBLE);
         pbLoadMovies.setVisibility(View.GONE);
         errorMessage.setVisibility(View.VISIBLE);
+        errorIcon.setImageResource(R.drawable.ic_error_outline_red_24dp);
+        errorIcon.setVisibility(View.VISIBLE);
     }
 
     private void showEmptyFavourites() {
         moviesRecyclerView.setVisibility(View.INVISIBLE);
         pbLoadMovies.setVisibility(View.GONE);
-        errorMessage.setVisibility(View.INVISIBLE);
+        errorMessage.setVisibility(View.VISIBLE);
+        errorIcon.setImageResource(R.drawable.ic_favorite_border_red_48dp);
+        errorIcon.setVisibility(View.VISIBLE);
     }
 }
